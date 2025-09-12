@@ -28,7 +28,7 @@ class ComposerStaticInit8f7c94b5d05881fe609ef878d77148c0
         ),
         'F' => 
         array (
-            'Frantzley\\ExcelToMySQL\\' => 23,
+            'Frantzley\\' => 10,
         ),
         'C' => 
         array (
@@ -63,7 +63,7 @@ class ComposerStaticInit8f7c94b5d05881fe609ef878d77148c0
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
-        'Frantzley\\ExcelToMySQL\\' => 
+        'Frantzley\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
