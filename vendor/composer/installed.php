@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
-        'name' => 'frantzley/excel-to-mysql',
+        'name' => 'frantzley/excel-to-mysql-web',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '03dcef83c2d13423261c7c80423e177e3f57ee7b',
+        'reference' => '51dbc358af3541e0752efb1cf39d60754f1de5d1',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -28,10 +28,10 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'frantzley/excel-to-mysql' => array(
+        'frantzley/excel-to-mysql-web' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '03dcef83c2d13423261c7c80423e177e3f57ee7b',
+            'reference' => '51dbc358af3541e0752efb1cf39d60754f1de5d1',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -14,22 +14,22 @@
 <title>Excel to MySQL</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-red-900 p-6">
     <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Upload Excel pou MySQL</h1>
+        <h1 class="text-2xl font-bold mb-4 text-center">Upload done nan fichye excel pou mete nan database MySQL</h1>
 
         <form id="uploadForm" class="space-y-4">
             <input type="file" name="excel_file" accept=".xls,.xlsx" class="block w-full text-sm text-gray-600
                 file:mr-4 file:py-2 file:px-4
                 file:rounded file:border-0
                 file:text-sm file:font-semibold
-                file:bg-blue-100 file:text-blue-700
-                hover:file:bg-blue-200" required>
+                file:bg-red-100 file:text-black-700
+                hover:file:bg-red-900 hover:file:text-white" required>
 
-            <input type="text" name="table_name" placeholder="Non tab la" class="w-full p-2 border rounded" required>
-            <input type="text" name="unique_key" placeholder="Kolòn kle inik (opsyonèl)" class="w-full p-2 border rounded">
+            <input type="text" name="table_name" placeholder="Non tab la pou mete done yo" class="w-full p-2 border rounded" required>
+            <input type="text" name="unique_key" placeholder="kle kolon inik lan (opsyonèl) " class="w-full p-2 border rounded">
 
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Kòmanse Import</button>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-black">Kòmanse Import</button>
         </form>
 
         <!-- Filter logs -->

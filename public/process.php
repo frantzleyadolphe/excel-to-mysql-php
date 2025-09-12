@@ -1,7 +1,8 @@
 <?php
 session_start();
-require './vendor/autoload.php';
-require './src/ExcelToMySQL.php';
+
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../src/ExcelToMySQL.php';
 
 use Frantzley\ExcelToMySQL;
 
@@ -14,7 +15,7 @@ try {
         throw new Exception("Pa gen fichye upload oswa gen yon erè.");
     }
 
-    $tableName = $_POST['table_name'] ?? null;
+    $tableName = $_POST['table_name'] ?? 'sheet';
     $uniqueKey = $_POST['unique_key'] ?? null;
 
     $uploadDir = __DIR__ . '/uploads';
@@ -25,60 +26,82 @@ try {
     $filePath = $uploadDir . '/' . basename($_FILES['excel_file']['name']);
     move_uploaded_file($_FILES['excel_file']['tmp_name'], $filePath);
 
-    $pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8", "root", "");
+    $pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8mb4", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $importer = new ExcelToMySQL($filePath, $pdo);
     $importer->setTableName($tableName);
-    if (! empty($uniqueKey)) {
+    if ($uniqueKey) {
         $importer->setUniqueKey($uniqueKey);
     }
 
-    // Chaje Excel la
     $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-    $headers     = $spreadsheet->getActiveSheet()->rangeToArray('A1:' . $spreadsheet->getActiveSheet()->getHighestColumn() . '1')[0];
-    $mapping     = [];
+    $sheet       = $spreadsheet->getActiveSheet();
+    $rows        = $sheet->toArray();
+
+    if (empty($rows)) {
+        throw new Exception("Fichye Excel la vid.");
+    }
+
+    // Retire headers
+    $headers = array_shift($rows);
+    $headers = array_map('trim', $headers);
+
+    // Filtre headers vid
+    $mapping = [];
     foreach ($headers as $header) {
-        $mapping[$header] = $tableName . '.' . $header;
+        if ($header !== '') {
+            $mapping[$header] = $header;
+        }
+
     }
     $importer->setMapping($mapping);
 
-    $rows              = $spreadsheet->getActiveSheet()->toArray();
-    $totalRows         = count($rows) - 1; // retire headers
-    $response['total'] = $totalRows;
-
-    array_shift($rows);     // retire headers
-    $_SESSION['logs'] = []; // initial logs pou pagination/filter
-
-    foreach ($rows as $rowIndex => $row) {
-        $data = [];
-        foreach ($headers as $index => $header) {
-            if (isset($mapping[$header])) {
-                $data[$mapping[$header]] = $row[$index];
+    // Retire ranje ki totalman vid
+    $rows = array_filter($rows, function ($row) {
+        foreach ($row as $cell) {
+            if (trim($cell) !== '') {
+                return true;
             }
+
+        }
+        return false;
+    });
+
+    $totalRows        = count($rows);
+    $_SESSION['logs'] = [];
+
+    foreach ($rows as $index => $row) {
+        $data = [];
+        foreach ($headers as $i => $header) {
+            if ($header === '') {
+                continue;
+            }
+            // ignore kolòn vid
+            $data[$header] = $row[$i];
         }
 
         try {
-            // itilize importRow() pito
-            $type     = $importer->importRow($data);
-            $logEntry = ['log' => "Liy #" . ($rowIndex + 2) . " processed", 'type' => $type];
+            $importer->insertOrUpdateRow($data);
+            $logEntry = ['log' => "Liy #" . ($index + 2) . " processed", 'type' => 'success'];
         } catch (\Exception $e) {
-            $logEntry = ['log' => "Error nan liy #" . ($rowIndex + 2) . ": " . $e->getMessage(), 'type' => 'error'];
+            $logEntry = ['log' => "Error nan liy #" . ($index + 2) . ": " . $e->getMessage(), 'type' => 'error'];
         }
 
         $_SESSION['logs'][] = $logEntry;
 
-        // voye log live pou JS
+        // Logs live
         echo json_encode([
             'log'     => $logEntry['log'],
             'type'    => $logEntry['type'],
-            'current' => $rowIndex + 1,
+            'current' => $index + 1,
             'total'   => $totalRows,
         ]) . "\n";
         flush();
     }
 
     $response['summary'] = $importer->getSummary();
+    echo json_encode($response);
 
 } catch (Exception $e) {
     $response['error'] = $e->getMessage();
