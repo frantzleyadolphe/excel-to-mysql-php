@@ -1,96 +1,157 @@
 <?php
-namespace Frantzley\ExcelToMySQL;
+namespace Frantzley;
 
-use Frantzley\ExcelToMySQL\Exceptions\ExcelToMySQLException;
-use Frantzley\ExcelToMySQL\TableManager;
 use PDO;
+use PDOException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Exception as SpreadsheetException;
 
 class ExcelToMySQL
 {
-    private PDO $pdo;
-    private string $filePath;
-    private string $tableName;
-    private array $mapping    = [];
-    private array $validation = [];
+    protected string $filePath;
+    protected PDO $pdo;
+    protected array $mapping     = [];
+    protected ?string $uniqueKey = null; // kle inik pou upsert
+    protected int $inserted      = 0;
+    protected int $updated       = 0;
+    protected string $logFile;
 
-    public function __construct(PDO $pdo, string $filePath, string $tableName)
+    public function __construct(string $filePath, PDO $pdo, ?string $logFile = null)
     {
-        $this->pdo       = $pdo;
-        $this->filePath  = $filePath;
-        $this->tableName = $tableName;
+        if (! file_exists($filePath)) {
+            throw new \InvalidArgumentException("Fichier Excel la pa jwenn: $filePath");
+        }
+
+        $this->filePath = $filePath;
+        $this->pdo      = $pdo;
+        $this->logFile  = $logFile ?? __DIR__ . '/import_errors.log';
     }
 
-    public function setMapping(array $mapping, array $validation = []): self
+    /**
+     * Define the mapping between Excel columns and MySQL table/columns
+     */
+    public function setMapping(array $mapping): void
     {
-        $this->mapping    = $mapping;
-        $this->validation = $validation;
-        return $this;
+        if (empty($mapping)) {
+            $this->log("Mapping la vid");
+            throw new \InvalidArgumentException("Ou dwe defini omwen yon mapping pou enpòte done yo.");
+        }
+        $this->mapping = $mapping;
     }
 
+    /**
+     * Set unique key for UPSERT
+     */
+    public function setUniqueKey(string $uniqueKey): void
+    {
+        $this->uniqueKey = $uniqueKey;
+    }
+
+    /**
+     * Run the import process
+     */
     public function run(): void
     {
         try {
             $spreadsheet = IOFactory::load($this->filePath);
-            $sheet       = $spreadsheet->getActiveSheet();
-            $rows        = $sheet->toArray();
-            $header      = array_shift($rows);
+        } catch (SpreadsheetException $e) {
+            $this->log("Echèk pou chaje fichye Excel: " . $e->getMessage());
+            throw new \RuntimeException("Echèk pou chaje fichye Excel la: " . $e->getMessage());
+        }
 
-            $columns = [];
-            foreach ($this->mapping as $excelCol => $dbCol) {
-                $columns[$dbCol] = 'VARCHAR(255)';
-                if (isset($this->validation[$dbCol]) && $this->validation[$dbCol] === 'int') {
-                    $columns[$dbCol] = 'INT';
+        $worksheet = $spreadsheet->getActiveSheet();
+        $rows      = $worksheet->toArray();
+
+        if (empty($rows)) {
+            $this->log("Excel la vid: " . $this->filePath);
+            throw new \RuntimeException("Excel la vid: " . $this->filePath);
+        }
+
+        // Premye liy lan gen headers
+        $headers = array_shift($rows);
+
+        foreach ($rows as $rowIndex => $row) {
+            $data = [];
+            foreach ($headers as $index => $header) {
+                if (isset($this->mapping[$header])) {
+                    $data[$this->mapping[$header]] = $row[$index];
                 }
             }
-            $tableManager = new TableManager($this->pdo, $this->tableName);
-            $tableManager->createTableIfNotExists($columns);
 
-            foreach ($rows as $row) {
-                $data = [];
-                foreach ($this->mapping as $excelCol => $dbCol) {
-                    $index = array_search($excelCol, $header);
-                    if ($index !== false) {
-                        $value = $row[$index];
-                        if (! $this->validate($dbCol, $value)) {
-                            continue 2;
-                        }
+            if (! empty($data)) {
+                try {
+                    $this->insertOrUpdateRow($data);
+                } catch (\RuntimeException $e) {
+                    $this->log("Erè nan liy " . ($rowIndex + 2) . ": " . $e->getMessage());
+                }
+            }
+        }
+    }
 
-                        $data[$dbCol] = $value;
+    protected function insertOrUpdateRow(array $data): void
+    {
+        $table = explode('.', reset(array_keys($data)))[0];
+
+        $columns      = [];
+        $placeholders = [];
+        $values       = [];
+
+        foreach ($data as $column => $value) {
+            $col            = explode('.', $column)[1];
+            $columns[]      = $col;
+            $placeholders[] = '?';
+            $values[]       = $value;
+        }
+
+        try {
+            if ($this->uniqueKey) {
+                $updateFields = [];
+                foreach ($columns as $col) {
+                    if ($col !== $this->uniqueKey) {
+                        $updateFields[] = "$col = VALUES($col)";
                     }
                 }
-                $this->upsertRow($data);
+
+                $sql = "INSERT INTO {$table} (" . implode(',', $columns) . ")
+                        VALUES (" . implode(',', $placeholders) . ")
+                        ON DUPLICATE KEY UPDATE " . implode(',', $updateFields);
+            } else {
+                $sql = "INSERT INTO {$table} (" . implode(',', $columns) . ")
+                        VALUES (" . implode(',', $placeholders) . ")";
             }
-        } catch (\Exception $e) {
-            throw new ExcelToMySQLException($e->getMessage());
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
+
+            if ($this->uniqueKey && $stmt->rowCount() === 2) {
+                $this->updated++;
+            } else {
+                $this->inserted++;
+            }
+
+        } catch (PDOException $e) {
+            $this->log("SQL Error: " . $e->getMessage() . " | SQL: $sql");
+            throw new \RuntimeException("Echèk SQL pandan enpòtasyon: " . $e->getMessage());
         }
     }
 
-    private function validate(string $column, $value): bool
+    /**
+     * Get summary (konbyen insert / update)
+     */
+    public function getSummary(): array
     {
-        if (! isset($this->validation[$column])) {
-            return true;
-        }
-
-        $type = $this->validation[$column];
-        if ($type === 'email') {
-            return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
-        }
-
-        if ($type === 'int') {
-            return is_numeric($value);
-        }
-
-        return true;
+        return [
+            'inserted' => $this->inserted,
+            'updated'  => $this->updated,
+        ];
     }
 
-    private function upsertRow(array $data): void
+    /**
+     * Simple logger
+     */
+    protected function log(string $message): void
     {
-        $columns      = implode(',', array_keys($data));
-        $placeholders = implode(',', array_map(fn($c) => ":$c", array_keys($data)));
-        $updates      = implode(',', array_map(fn($c) => "$c=VALUES($c)", array_keys($data)));
-
-        $stmt = $this->pdo->prepare("INSERT INTO {$this->tableName} ($columns) VALUES ($placeholders) ON DUPLICATE KEY UPDATE $updates");
-        $stmt->execute($data);
+        $date = date('Y-m-d H:i:s');
+        file_put_contents($this->logFile, "[$date] $message" . PHP_EOL, FILE_APPEND);
     }
 }
