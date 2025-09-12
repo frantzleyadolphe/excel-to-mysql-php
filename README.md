@@ -1,8 +1,8 @@
 ## Excel to MySQL Web Importer
 ```
-Yon aplikasyon web pou fasil enpòte fichye Excel (.xls / .xlsx)
+Yon aplikasyon web ki la pou ede w fasilman enpòte fichye Excel (.xls / .xlsx)
 dirèkteman nan yon baz done MySQL.
-Li fèt pou devlopè ak itilizatè ki pa teknik, epi li ofri
+Li fèt pou devlopè ak itilizatè ki bezwen yon travay rapid, epi li ofri
 yon UI senp ak fonctionnalités avanse tankou live logs,
 progress bar, ak filtre logs.
 ```
