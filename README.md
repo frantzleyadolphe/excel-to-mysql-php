@@ -85,15 +85,4 @@ CREATE TABLE users (
     age INT
 );
 
-```
-## Features
-```
-✅ Import Excel to MySQL
 
-✅ UPSERT (insert or update existing records)
-
-✅ Exception handling
-
-✅ Logging errors into a .log file
-
-✅ Simple and professional PHP package
