@@ -4,7 +4,7 @@ A professional PHP package that imports Excel data directly into MySQL with UPSE
 
 ## Installation
 ```bash
-composer require phpoffice/phpspreadsheet
+composer require frantzley/excel-to-mysql
 ```
 ## Usage
 ```
