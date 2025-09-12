@@ -6,24 +6,35 @@ A professional PHP package that imports Excel data directly into MySQL with UPSE
 ```bash
 composer require frantzley/excel-to-mysql
 ```
-## Usage
+## Usage with limit and specific tableName
 ```
 use Frantzley\ExcelToMySQL;
 
-$pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8", "root", "");
+$importer = new ExcelToMySQL(__DIR__ . "/data.xlsx", $pdo, __DIR__ . "/import.log");
 
-$importer = new ExcelToMySQL("data.xlsx", $pdo);
-
+// Defini mapping
 $importer->setMapping([
     "Nom"   => "users.name",
     "Email" => "users.email",
     "Age"   => "users.age"
 ]);
 
-// Unique key for upsert
+// Fòse li pran tab "users" menm si mapping gen lòt non
+$importer->setTableName("users");
+
+// Set unique key pou upsert
 $importer->setUniqueKey("email");
 
+// Limite a sèlman 10 liy
+$importer->setLimitRows(10);
+
+// Kouri import
 $importer->run();
+
+$summary = $importer->getSummary();
+echo "✅ Done imported! Nouvo: {$summary['inserted']} | Mizajou: {$summary['updated']}\n";
+echo "Log file: " . __DIR__ . "/import.log\n";
+
 ```
 ## SQL Example
 ```
