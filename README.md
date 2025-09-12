@@ -1,11 +1,48 @@
-# ExcelToMySQL
+# Excel to MySQL - Frantzley
 
-Professional PHP package to import Excel files into MySQL.
+A professional PHP package that imports Excel data directly into MySQL with UPSERT support.
 
+## Installation
+```bash
+composer require frantzley/excel-to-mysql
+```
+## Usage
+```
+use Frantzley\ExcelToMySQL;
+
+$pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8", "root", "");
+
+$importer = new ExcelToMySQL("data.xlsx", $pdo);
+
+$importer->setMapping([
+    "Nom"   => "users.name",
+    "Email" => "users.email",
+    "Age"   => "users.age"
+]);
+
+// Unique key for upsert
+$importer->setUniqueKey("email");
+
+$importer->run();
+```
+## SQL Example
+```
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    age INT
+);
+
+```
 ## Features
-- Read `.xlsx` and `.xls` files
-- Auto-create MySQL table if not exists
-- Column mapping from Excel to MySQL
-- Validation (email, integer, etc.)
-- Upsert to avoid duplicates
-- PSR-4 autoload, ready for Composer
+```
+✅ Import Excel to MySQL
+
+✅ UPSERT (insert or update existing records)
+
+✅ Exception handling
+
+✅ Logging errors into a .log file
+
+✅ Simple and professional PHP package
