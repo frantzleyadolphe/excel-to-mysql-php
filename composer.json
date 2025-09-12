@@ -8,5 +8,5 @@
         "php": ">=8.0",
         "phpoffice/phpspreadsheet": "^1.28"
     },
-    "autoload": {"psr-4": {"Frantzley\\ExcelToMySQL\\": "src/"}}
+    "autoload": {"psr-4": {"Frantzley\\": "src/"}}
 }
