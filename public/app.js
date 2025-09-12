@@ -5,7 +5,6 @@ const progressBar = document.getElementById('progressBar');
 const summaryDiv = document.getElementById('summary');
 const filterSelect = document.getElementById('filterLogs');
 let allLogs = [];
-
 dropArea.addEventListener('click', ()=>fileInput.click());
 dropArea.addEventListener('dragover', e=>{ e.preventDefault(); dropArea.classList.add('bg-gray-200'); });
 dropArea.addEventListener('dragleave', e=>{ e.preventDefault(); dropArea.classList.remove('bg-gray-200'); });
