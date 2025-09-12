@@ -90,7 +90,9 @@ class ExcelToMySQL
 
     protected function insertOrUpdateRow(array $data): void
     {
-        $table = explode('.', reset(array_keys($data)))[0];
+        $keys     = array_keys($data);
+        $tableKey = reset($keys);
+        $table    = explode('.', $tableKey)[0];
 
         $columns      = [];
         $placeholders = [];
@@ -149,9 +151,18 @@ class ExcelToMySQL
     /**
      * Simple logger
      */
-    protected function log(string $message): void
+    protected function log(string $message, string $level = 'INFO'): void
     {
         $date = date('Y-m-d H:i:s');
-        file_put_contents($this->logFile, "[$date] $message" . PHP_EOL, FILE_APPEND);
+
+        // Asire folder la egziste
+        $logDir = dirname($this->logFile);
+        if (! is_dir($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
+
+        $formatted = sprintf("[%s] [%s] %s", $date, strtoupper($level), $message);
+
+        file_put_contents($this->logFile, $formatted . PHP_EOL, FILE_APPEND);
     }
 }
