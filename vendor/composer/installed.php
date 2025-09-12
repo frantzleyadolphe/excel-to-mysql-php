@@ -3,7 +3,7 @@
         'name' => 'frantzley/excel-to-mysql',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a43faeb42437e9f8cbf23e75b0989e50da755f27',
+        'reference' => '03dcef83c2d13423261c7c80423e177e3f57ee7b',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'frantzley/excel-to-mysql' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a43faeb42437e9f8cbf23e75b0989e50da755f27',
+            'reference' => '03dcef83c2d13423261c7c80423e177e3f57ee7b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -1,82 +1,87 @@
-const dropArea = document.getElementById('dropArea');
-const fileInput = document.getElementById('fileInput');
-const logsDiv = document.getElementById('logs');
+const form = document.getElementById('uploadForm');
 const progressBar = document.getElementById('progressBar');
-const summaryDiv = document.getElementById('summary');
-const filterSelect = document.getElementById('filterLogs');
-let allLogs = [];
-dropArea.addEventListener('click', ()=>fileInput.click());
-dropArea.addEventListener('dragover', e=>{ e.preventDefault(); dropArea.classList.add('bg-gray-200'); });
-dropArea.addEventListener('dragleave', e=>{ e.preventDefault(); dropArea.classList.remove('bg-gray-200'); });
-dropArea.addEventListener('drop', e=>{
-    e.preventDefault();
-    dropArea.classList.remove('bg-gray-200');
-    fileInput.files = e.dataTransfer.files;
-});
+const logsDiv = document.getElementById('logs');
+const logFilter = document.getElementById('logFilter');
 
-filterSelect.addEventListener('change', renderLogs);
+let logs = []; // kenbe tout logs
 
-document.getElementById('importForm').addEventListener('submit', async function(e){
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
     logsDiv.innerHTML = '';
-    summaryDiv.innerHTML = '';
+    logs = [];
     progressBar.style.width = '0%';
-    allLogs = [];
 
-    const formData = new FormData(this);
+    const formData = new FormData(form);
 
-    const response = await fetch('process.php', {method:'POST', body:formData});
+    const response = await fetch('process.php', {
+        method: 'POST',
+        body: formData
+    });
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let done = false;
+    let received = '';
+    let total = 0;
 
-    while(!done){
-        const {value, done: readerDone} = await reader.read();
-        done = readerDone;
-        if(value){
-            const chunk = decoder.decode(value);
-            chunk.split("\n").forEach(line=>{
-                if(line.trim()){
-                    try{
-                        const json = JSON.parse(line);
-                        if(json.log){
-                            allLogs.push(json);
-                            renderLogs();
-                            if(json.total){
-                                const percent = Math.round((json.current/json.total)*100);
-                                progressBar.style.width = percent + '%';
-                            }
-                        }
-                    }catch(e){}
+    while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        received += decoder.decode(value, {stream: true});
+        const lines = received.split("\n");
+        received = lines.pop();
+
+        lines.forEach(line => {
+            if (!line.trim()) return;
+            try {
+                const data = JSON.parse(line);
+                if (data.log || data.summary) {
+                    if (data.log) logs.push({text: data.log, type: data.type});
+                    if (data.summary) {
+                        logs.push({text: `Import fini! Inserted: ${data.summary.inserted}, Updated: ${data.summary.updated}`, type: 'info'});
+                    }
+                    renderLogs();
+                    if (data.current) updateProgress(data.current, data.total || total);
                 }
-            });
-        }
-    }
-
-    const final = await response.json();
-    if(final.summary){
-        summaryDiv.innerHTML = `
-            <p class="font-bold">Total Rows: ${final.summary.total}</p>
-            <p class="font-bold text-green-600">Inserted: ${final.summary.inserted}</p>
-            <p class="font-bold text-yellow-600">Updated: ${final.summary.updated}</p>
-        `;
-    }
-    if(final.error){
-        summaryDiv.innerHTML = `<p class="text-red-600 font-bold">Error: ${final.error}</p>`;
+            } catch(err) {
+                console.error(err);
+            }
+        });
     }
 });
 
-function renderLogs(){
-    const filter = filterSelect.value;
+// Fonksyon pou rander logs selon filtre
+function renderLogs() {
+    const filter = logFilter.value;
     logsDiv.innerHTML = '';
-    allLogs.forEach(l=>{
-        if(filter==='all' || l.type===filter){
-            let color='text-black';
-            if(l.type==='insert') color='text-green-600';
-            if(l.type==='update') color='text-yellow-600';
-            if(l.type==='error') color='text-red-600';
-            logsDiv.innerHTML += `<div class="${color}">${l.log}</div>`;
-        }
+    logs.forEach(log => {
+        if (filter !== 'all' && log.type !== filter) return;
+        addLogDiv(log.text, log.type);
     });
-    logsDiv.scrollTop = logsDiv.scrollHeight;
 }
+
+function addLogDiv(text, type) {
+    const div = document.createElement('div');
+    let color = 'text-gray-800';
+    if (type === 'insert') color = 'text-green-600';
+    if (type === 'update') color = 'text-yellow-600';
+    if (type === 'error') color = 'text-red-600';
+    if (type === 'info') color = 'text-blue-600';
+
+    div.className = `${color} opacity-0 transition-opacity duration-700`;
+    div.textContent = text;
+    logsDiv.appendChild(div);
+
+    setTimeout(() => {
+        div.classList.add('opacity-100');
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+    }, 50);
+}
+
+function updateProgress(current, total) {
+    if (!total) return;
+    const percent = Math.round((current / total) * 100);
+    progressBar.style.width = percent + '%';
+}
+
+// Chanjman filtre
+logFilter.addEventListener('change', renderLogs);
