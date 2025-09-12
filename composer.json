@@ -1,0 +1,12 @@
+{
+    "name": "frantzley/excel-to-mysql",
+    "description": "Professional PHP package to import Excel files into MySQL with validation and upsert",
+    "type": "library",
+    "license": "MIT",
+    "authors": [{"name": "Frantzley Adolphe"}],
+    "require": {
+        "php": ">=8.0",
+        "phpoffice/phpspreadsheet": "^1.28"
+    },
+    "autoload": {"psr-4": {"Frantzley\\ExcelToMySQL\\": "src/"}}
+}
