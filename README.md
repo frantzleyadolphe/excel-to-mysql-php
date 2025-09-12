@@ -1,7 +1,51 @@
-# Excel to MySQL - Frantzley
+## Excel to MySQL Web Importer
+```
+Yon aplikasyon web ki la pou ede w fasilman enpòte fichye Excel (.xls / .xlsx)
+dirèkteman nan yon baz done MySQL.
+Li fèt pou devlopè ak itilizatè ki bezwen yon travay rapid, epi li ofri
+yon UI senp ak fonctionnalités avanse tankou live logs,
+progress bar, ak filtre logs.
+```
+Karakteristik prensipal
+```
+Upload yon fichye Excel ak antre table name ak optional unique key.
 
-A professional PHP package that imports Excel data directly into MySQL with UPSERT support.
+Live logs pandan chak liy ap trete, ak koulè diferan pou insert, update, ak error.
 
+Progress bar ki montre pwogrè import nan tan reyèl.
+
+Filtrage logs pou wè sèlman insert, update, error oswa tout logs.
+
+Stream logs soti nan PHP (process.php) san rete,kreye pou sipote gwo fichye Excel.
+
+Kenbe enkapsulasyon klas ExcelToMySQL ak metòd importRow() pou insert/update chak liy.
+
+Konplètman styled ak Tailwind CSS.
+```
+##Teknoloji itilize
+``` 
+✅ PHP 8+
+
+✅ MySQL
+
+✅ PhpSpreadsheet
+
+✅ Tailwind CSS
+
+✅ Vanilla JavaScript (fetch + streaming JSON)
+```
+## Itilizasyon
+```
+---> Upload yon fichye Excel.
+
+---> Antre non tab la ak kolòn kle inik (si genyen).
+
+---> Klike Kòmanse Import.
+
+---> Swiv logs ak progress bar an tan reyèl.
+
+---> Sèvi ak dropdown filtre logs pou wè sèlman sa ou vle.
+```
 ## Installation
 ```bash
 composer require frantzley/excel-to-mysql
@@ -45,15 +89,4 @@ CREATE TABLE users (
     age INT
 );
 
-```
-## Features
-```
-✅ Import Excel to MySQL
 
-✅ UPSERT (insert or update existing records)
-
-✅ Exception handling
-
-✅ Logging errors into a .log file
-
-✅ Simple and professional PHP package
