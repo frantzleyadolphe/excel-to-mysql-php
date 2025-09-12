@@ -1,0 +1,8 @@
+[2025-09-12 19:12:46] [INFO] SQL Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'testdb.users' doesn't exist | SQL: INSERT INTO users (age)
+                        VALUES (?)
+                        ON DUPLICATE KEY UPDATE age = VALUES(age)
+[2025-09-12 19:12:46] [INFO] Erè nan liy 2: Echèk SQL pandan enpòtasyon: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'testdb.users' doesn't exist
+[2025-09-12 19:12:46] [INFO] SQL Error: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'testdb.users' doesn't exist | SQL: INSERT INTO users (age)
+                        VALUES (?)
+                        ON DUPLICATE KEY UPDATE age = VALUES(age)
+[2025-09-12 19:12:46] [INFO] Erè nan liy 3: Echèk SQL pandan enpòtasyon: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'testdb.users' doesn't exist
