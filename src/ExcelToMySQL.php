@@ -39,6 +39,11 @@ class ExcelToMySQL
         $this->mapping = $mapping;
     }
 
+    public function getMapping(): array
+    {
+        return $this->mapping;
+    }
+
     public function insertOrUpdateRow(array $data): string
     {
         if (! $this->tableName) {

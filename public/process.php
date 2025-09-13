@@ -6,9 +6,14 @@ require __DIR__ . '/../src/ExcelToMySQL.php';
 
 use Frantzley\ExcelToMySQL;
 
-header('Content-Type: application/json');
+// Fonksyon pou ekri log
+function writeLog(string $message): string
+{
+    error_log($message); // ekri nan log PHP
+    return $message;     // retounen mesaj la pou JSON
+}
 
-$response = ['logs' => [], 'summary' => null, 'error' => null];
+header('Content-Type: application/json');
 
 try {
     if (! isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] !== UPLOAD_ERR_OK) {
@@ -43,57 +48,76 @@ try {
         throw new Exception("Fichye Excel la vid.");
     }
 
+    // Retire headers
     $headers = array_shift($rows);
     $headers = array_map('trim', $headers);
 
-    // Mapping headers
+    // Filtre headers vid
     $mapping = [];
     foreach ($headers as $header) {
         if ($header !== '') {
             $mapping[$header] = $header;
         }
-    }
 
+    }
     $importer->setMapping($mapping);
 
-    // Retire ranje ki vid
-    $rows = array_filter($rows, fn($row) => count(array_filter($row, fn($cell) => trim($cell) !== '')) > 0);
+    // Retire ranje ki vid totalman
+    $rows = array_filter($rows, function ($row) {
+        foreach ($row as $cell) {
+            if (trim($cell) !== '') {
+                return true;
+            }
+
+        }
+        return false;
+    });
 
     $totalRows = count($rows);
 
     foreach ($rows as $rowIndex => $row) {
         $data = [];
-        foreach ($headers as $index => $header) {
+        foreach ($headers as $i => $header) {
             if (isset($mapping[$header])) {
-                $data[$mapping[$header]] = $row[$index];
+                $data[$mapping[$header]] = $row[$i];
             }
-
         }
 
-        $type = $importer->insertOrUpdateRow($data);
+        try {
+            $result = $importer->insertOrUpdateRow($data);
 
-        $logEntry = [
-            'log'  => match ($type) {
-                'insert' => "Liy #" . ($rowIndex + 2) . " ajoute nan DB",
-                'exists' => "Liy #" . ($rowIndex + 2) . " deja egziste nan DB li sote",
-                'error'  => "Liy #" . ($rowIndex + 2) . " gen erè pandan insertion",
-            },
-            'type' => $type,
-        ];
+            // Fè log ak writeLog()
+            $logMessage = match ($result) {
+                'insert' => writeLog("Liy #" . ($rowIndex + 2) . " ajoute nan DB"),
+                'exists' => writeLog("Liy #" . ($rowIndex + 2) . " deja egziste, li sote"),
+                'error'  => writeLog("Liy #" . ($rowIndex + 2) . " gen erè pandan insert"),
+            };
+
+        } catch (\Exception $e) {
+            $result     = 'error';
+            $logMessage = writeLog("Error nan liy #" . ($rowIndex + 2) . ": " . $e->getMessage());
+        }
 
         echo json_encode([
-            'log'     => $logEntry['log'],
-            'type'    => $logEntry['type'],
+            'log'     => $logMessage,
+            'type'    => $result,
             'current' => $rowIndex + 1,
             'total'   => $totalRows,
         ]) . "\n";
         flush();
     }
 
-    $response['summary'] = $importer->getSummary();
-    //echo json_encode($response);
+    // Send summary nan fen
+    $summary = $importer->getSummary();
+    echo json_encode([
+        'log' => writeLog("Import fini! Nouvo: {$summary['inserted']}, Deja egziste: {$summary['exists']}"),
+        'type'    => 'info',
+        'summary' => $summary,
+    ]);
 
-} catch (Exception $e) {
-    $response['error'] = $e->getMessage();
-    //echo json_encode($response);
+} catch (\Exception $e) {
+    echo json_encode([
+        'log'  => writeLog("Erè: " . $e->getMessage()),
+        'type' => 'error',
+    ]);
 }
