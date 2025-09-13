@@ -43,10 +43,11 @@ project-root/
 ├─ uploads/          # Folder pou fichye upload (kreye otomatik si li pa egziste)
 ├─ vendor/           # Composer dependencies
 
+
+```
 Asire w gen PhpSpreadsheet enstale:
 ```
 composer require phpoffice/phpspreadsheet
-```
 ```
 ## ⚡ Usage
 ```
