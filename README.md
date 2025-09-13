@@ -29,10 +29,12 @@ Travay ak .xlsx Excel files.
 ## 💻 Installation
 ```
 Enstale via Composer:
-
+```
 composer require frantzley/excel-to-mysql
-
-Kopi public/ folder ki enkli tout frontend + backend nan pwojè w la (pa bezwen modifye li). Estrikti a ap sanble konsa:
+```
+```
+## Estrikti Projet an
+```
 
 project-root/
 ├─ public/
