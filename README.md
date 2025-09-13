@@ -30,8 +30,9 @@ Travay ak .xlsx Excel files.
 ```
 Enstale via Composer:
 ```
-composer require frantzley/excel-to-mysql
+
 ```
+composer require frantzley/excel-to-mysql
 ```
 ## Estrikti Projet an
 ```
