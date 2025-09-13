@@ -3,7 +3,7 @@
         'name' => 'frantzley/excel-to-mysql-web',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a6972c98e7e862510d2b0a214f4253cc63e4a830',
+        'reference' => 'd2a7e0c8d777e5a12e6db51773969493ad724680',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'frantzley/excel-to-mysql-web' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a6972c98e7e862510d2b0a214f4253cc63e4a830',
+            'reference' => 'd2a7e0c8d777e5a12e6db51773969493ad724680',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
