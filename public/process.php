@@ -85,12 +85,18 @@ try {
 
         try {
             $result = $importer->insertOrUpdateRow($data);
+            // Ogmante kontè yo
+            match ($result) {
+                'insert' => $insertedCount++,
+                'exists' => $existsCount++,
+                default  => null,
+            };
 
             // Fè log ak writeLog()
             $logMessage = match ($result) {
-                'insert' => writeLog("Liy #" . ($rowIndex + 2) . " ajoute nan DB"),
+                'insert' => writeLog("Liy #" . ($rowIndex + 2) . " ajoute nan DB, | Nouvo: $insertedCount"),
                 'exists' => writeLog("Liy #" . ($rowIndex + 2) . " deja egziste, li sote"),
-                'error'  => writeLog("Liy #" . ($rowIndex + 2) . " gen erè pandan insert"),
+                'error'  => writeLog("Liy #" . ($rowIndex + 2) . " gen erè pandan insert oubyen li deja egziste "),
             };
 
         } catch (\Exception $e) {
