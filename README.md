@@ -6,109 +6,119 @@ Li fèt pou devlopè ak itilizatè ki bezwen yon travay rapid, epi li ofri
 yon UI senp ak fonctionnalités avanse tankou live logs,
 progress bar, ak filtre logs.
 ```
-Karakteristik prensipal
+## Pwen kle
 ```
-Upload yon fichye Excel ak antre table name ak optional unique key.
-
-Live logs pandan chak liy ap trete, ak koulè diferan pou insert, update, ak error.
-
-Progress bar ki montre pwogrè import nan tan reyèl.
-
-Filtrage logs pou wè sèlman insert, update, error oswa tout logs.
-
-Stream logs soti nan PHP (process.php) san rete,kreye pou sipote gwo fichye Excel.
-
-Kenbe enkapsulasyon klas ExcelToMySQL ak metòd importRow() pou insert/update chak liy.
-
-Konplètman styled ak Tailwind CSS.
+Backend ki otomatikman trete fichye Excel la → MySQL.
+Kreye tab otomatik si li pa egziste.
+Insert oswa update done selon yon kle inik men li opsyonel.
+Mapping kolòn Excel pou kreye non kolonn yo → kolòn DB otomatik oswa ou kapab fel ou menm manyèl.
+Log pou we jan pwosedi an ye ak koulè: ble (insert), jòn (exists), wouj (erè).
 ```
-##Teknoloji itilize
-``` 
-✅ PHP 8+
-
-✅ MySQL
-
-✅ PhpSpreadsheet
-
-✅ Tailwind CSS
-
-✅ Vanilla JavaScript (fetch + streaming JSON)
+## 🛠 Features
 ```
-## Itilizasyon
+Fully ready-to-use: pa bezwen kreye process.php oswa modifye kòd.
+
+Mapping kolòn otomatik soti nan header Excel.
+
+Opsyon pou mapping manyèl.
+
+Afichaj log vivan pandan import.
+
+Travay ak .xlsx Excel files.
 ```
----> Upload yon fichye Excel.
-
----> Antre non tab la ak kolòn kle inik (si genyen).
-
----> Klike Kòmanse Import.
-
----> Swiv logs ak progress bar an tan reyèl.
-
----> Sèvi ak dropdown filtre logs pou wè sèlman sa ou vle.
+## 💻 Installation
 ```
-## Installation
-```bash
+Enstale via Composer:
+
 composer require frantzley/excel-to-mysql
+
+Kopi public/ folder ki enkli tout frontend + backend nan pwojè w la (pa bezwen modifye li). Estrikti a ap sanble konsa:
 ```
-## Usage with limit and specific tableName
+project-root/
+├─ public/
+│  ├─ index.php      # Upload form ak UI
+│  ├─ process.php    # Backend processing (pre-bati)
+├─ src/
+│  └─ ExcelToMySQL.php
+├─ uploads/          # Folder pou fichye upload (kreye otomatik si li pa egziste)
+├─ vendor/           # Composer dependencies
 ```
+
+Asire w gen PhpSpreadsheet enstale:
+
+composer require phpoffice/phpspreadsheet
 ```
-kreye yon fichier process.php ou kapab rele li janw vle tou
-epi mete kod sa yo ak estrikti ou vle tab lan genyen ki match ak excel file lan
+## ⚡ Usage
 ```
+Louvri browser ou sou public/index.php.
+
+Chwazi fichye Excel ou a, antre non tab la nan DB, ak kle inik si ou vle.
+
+Klike Upload & Import.
+
+Log yo ap parèt vivan ak koulè selon aksyon yo:
+
+Ble → nouvo insert
+
+Jòn → deja egziste
+
+Wouj → erè
+```
+## 🔧 Column Mapping
+```
+Otomatik: Premye ranje nan Excel la sèvi kòm header; kolòn DB yo pran menm non.
+
+Manyèl: Ou ka chanje kolòn DB yo si bezwen:
+```
+$importer->setMapping([
+    "Excel Name"  => "db_name",
+    "Excel Email" => "db_email"
+]);
+```
+
+Tab la kreye otomatikman selon mapping lan.
+```
+## 📦 Example PHP Usage
+```
+Ou ka itilize klas ExcelToMySQL nan pwòp kòd PHP ou tou:
+```
+require __DIR__ . '/vendor/autoload.php';
+
 use Frantzley\ExcelToMySQL;
 
-$importer = new ExcelToMySQL(__DIR__ . "/data.xlsx", $pdo, __DIR__ . "/import.log");
+$pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8mb4", "root", "");
+$importer = new ExcelToMySQL("uploads/data.xlsx", $pdo);
 
-// Defini mapping
+$importer->setTableName("users");
+$importer->setUniqueKey("email");
 $importer->setMapping([
-    "Nom"   => "users.name",
-    "Email" => "users.email",
-    "Age"   => "users.age"
+    "Name"  => "name",
+    "Email" => "email",
+    "Phone" => "phone"
 ]);
 
-// Fòse li pran tab "users" menm si mapping gen lòt non
-$importer->setTableName("users");
+$importer->createTableIfNotExists(array_values($importer->getMapping()));
+$result = $importer->insertOrUpdateRow([
+    "name"  => "John Doe",
+    "email" => "john@example.com",
+    "phone" => "123456789"
+]);
 
-// Set unique key pou upsert
-$importer->setUniqueKey("email");
+print_r($result);
+```
+```
+## ⚙ Requirements
+```
+PHP >= 8.0
 
-// Limite a sèlman 10 liy
-$importer->setLimitRows(10);
+MySQL
 
-//  import
-$importer->run();
+PhpSpreadsheet
+```
+## ✅ Key Point pou Itilizatè
+```
+Pa bezwen kreye process.php. Tout backend processing deja enkli nan package la.
 
-$summary = $importer->getSummary();
-echo "✅ Done imported! Nouvo: {$summary['inserted']} | Mizajou: {$summary['updated']}\n";
-echo "Log file: " . __DIR__ . "/import.log\n";
-```
-Lanse script lan ak PHP CLI siw se devlope pou pi rapid
-```
-php process.php
+Yo sèlman bezwen navigue nan index.php, upload fichye Excel, epi log ap montre yo insert / exists / error vivan.
 
-```
-Pou lanse web entefas lan 
-```
-Ale nan folder public/:
-```
----> cd public
-```
-epi answit
-```
---->php -S localhost:8000 -t .
-```
-ouvri navigatè ou sou:
-http://localhost:8000 oubyen port ou genyen 
-Upload fichye Excel ou a, chwazi non tab ou ak unique key si ou vle.
-```
-## SQL Example
-```
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    age INT
-);
-
-
+Tout folder nesesè (uploads/) kreye otomatikman si li pa egziste.
