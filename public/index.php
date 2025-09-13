@@ -40,7 +40,7 @@
 </head>
 <body class="bg-slate-900 p-6">
     <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow relative ">
-        <h1 class="text-2xl font-bold mb-4 text-center">Upload done nan fichye excel pou mete nan database MySQL</h1>
+        <h1 class="text-xl font-bold mb-4 text-center">Pran done nan yon fichye excel pou mete nan yon baz done MySQL 📊⏳</h1>
 
         <form id="uploadForm" class="space-y-4">
             <input type="file" name="excel_file" accept=".xls,.xlsx" class="block w-full text-sm text-gray-600
