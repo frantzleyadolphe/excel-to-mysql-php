@@ -25,7 +25,7 @@
                 hover:file:bg-red-900 hover:file:text-white" required>
 
             <input type="text" name="table_name" placeholder="Non tab la pou mete done yo" class="w-full p-2 border rounded" required>
-            <input type="text" name="unique_key" placeholder="kle kolon inik lan" class="w-full p-2 border rounded" required>
+            <input type="text" name="unique_key" placeholder="kle kolon inik lan (opsyonel)" class="w-full p-2 border rounded" >
 
             <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full hover:bg-black">Lanse enpotasyon</button>
         </form>
