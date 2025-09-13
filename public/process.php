@@ -71,35 +71,41 @@ try {
     $totalRows        = count($rows);
     $_SESSION['logs'] = [];
 
-    foreach ($rows as $index => $row) {
+    foreach ($rows as $rowIndex => $row) {
         $data = [];
-        foreach ($headers as $i => $header) {
-            if ($header === '') {
-                continue;
+        foreach ($headers as $index => $header) {
+            if (isset($mapping[$header])) {
+                $data[$mapping[$header]] = $row[$index];
             }
-            // ignore kolòn vid
-            $data[$header] = $row[$i];
         }
 
         try {
-            $importer->insertOrUpdateRow($data);
-            $logEntry = ['log' => "Liy #" . ($index + 2) . " processed", 'type' => 'success'];
+            $type     = $importer->insertOrUpdateRow($data); // retounen 'insert', 'exists', 'error'
+            $logEntry = [
+                'log'  => match ($type) {
+                    'insert' => "Liy #" . ($rowIndex + 2) . " ajoute nan DB",
+                    'error'  => "Liy #" . ($rowIndex + 2) . " deja egziste nan DB li sote l",
+
+                },
+                'type' => $type,
+            ];
         } catch (\Exception $e) {
-            $logEntry = ['log' => "Error nan liy #" . ($index + 2) . ": " . $e->getMessage(), 'type' => 'error'];
+            $logEntry = [
+                'log'  => "Error nan liy #" . ($rowIndex + 2) . ": " . $e->getMessage(),
+                'type' => 'error',
+            ];
         }
 
         $_SESSION['logs'][] = $logEntry;
 
-        // Logs live
         echo json_encode([
             'log'     => $logEntry['log'],
             'type'    => $logEntry['type'],
-            'current' => $index + 1,
+            'current' => $rowIndex + 1,
             'total'   => $totalRows,
         ]) . "\n";
         flush();
     }
-
     $response['summary'] = $importer->getSummary();
     echo json_encode($response);
 

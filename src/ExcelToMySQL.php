@@ -1,119 +1,94 @@
 <?php
 namespace Frantzley;
 
+use Exception;
 use PDO;
-use PDOException;
 
 class ExcelToMySQL
 {
-    protected string $filePath;
     protected PDO $pdo;
-    protected array $mapping     = [];
-    protected ?string $uniqueKey = null;
-    protected int $inserted      = 0;
-    protected int $updated       = 0;
-    protected string $logFile;
+    protected string $filePath;
     protected ?string $tableName = null;
+    protected ?string $uniqueKey = null;
+    protected array $mapping     = [];
+    protected array $logs        = [];
+    protected array $summary     = [
+        'inserted' => 0,
+        'exists'   => 0,
+    ];
 
-    public function __construct(string $filePath, PDO $pdo, ?string $logFile = null)
+    public function __construct(string $filePath, PDO $pdo)
     {
-        if (! file_exists($filePath)) {
-            throw new \InvalidArgumentException("Fichier Excel la pa jwenn: $filePath");
-        }
         $this->filePath = $filePath;
         $this->pdo      = $pdo;
-        $this->logFile  = $logFile ?? __DIR__ . '/import_errors.log';
     }
 
-    public function setMapping(array $mapping): void
-    {
-        if (empty($mapping)) {
-            throw new \InvalidArgumentException("Ou dwe defini omwen yon mapping pou enpòte done yo.");
-        }
-        // retire kolòn vid nan mapping
-        $this->mapping = array_filter($mapping, fn($col) => trim($col) !== '');
-    }
-
-    public function setUniqueKey(string $uniqueKey): void
-    {
-        $this->uniqueKey = $uniqueKey;
-    }
-
-    public function setTableName(string $tableName): void
+    public function setTableName(string $tableName)
     {
         $this->tableName = $tableName;
     }
 
-    public function insertOrUpdateRow(array $data): void
+    public function setUniqueKey(string $uniqueKey)
     {
-        $table = $this->tableName ?? 'sheet';
+        $this->uniqueKey = $uniqueKey;
+    }
 
-        // retire kolòn vid nan done
-        $data = array_filter($data, fn($val, $col) => trim($col) !== '', ARRAY_FILTER_USE_BOTH);
-        if (empty($data)) {
-            return;
+    public function setMapping(array $mapping)
+    {
+        $this->mapping = $mapping;
+    }
+
+    public function insertOrUpdateRow(array $data): string
+    {
+        if (! $this->tableName) {
+            throw new Exception("Non tab la pa defini");
         }
 
-        // Kreye tab la yon sèl fwa si li pa egziste
-        static $tableCreated = [];
-        if (! isset($tableCreated[$table])) {
-            $columnsSQL = [];
-            foreach ($data as $col => $val) {
-                $columnsSQL[] = "`$col` VARCHAR(255)";
+        $table = $this->tableName;
+
+        // Tcheke kle inik
+        if ($this->uniqueKey && isset($data[$this->uniqueKey])) {
+            $parts     = explode('.', $this->uniqueKey);
+            $uniqueCol = $parts[1] ?? $parts[0];
+
+            $stmtCheck = $this->pdo->prepare("SELECT COUNT(*) FROM `$table` WHERE `$uniqueCol` = ?");
+            $stmtCheck->execute([$data[$this->uniqueKey]]);
+            if ($stmtCheck->fetchColumn() > 0) {
+                $this->log("Done deja egziste: " . json_encode($data), "INFO");
+                $this->summary['error']++;
+                return 'error';
             }
-
-            $uniqueSQL = $this->uniqueKey ? ", UNIQUE(`$this->uniqueKey`)" : "";
-
-            $createTableSQL = "CREATE TABLE IF NOT EXISTS `$table` (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                " . implode(',', $columnsSQL) . "
-                $uniqueSQL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-            $this->pdo->exec($createTableSQL);
-
-            $tableCreated[$table] = true;
         }
 
+        // Insert done si pa deja egziste
         $columns      = array_keys($data);
         $placeholders = array_fill(0, count($columns), '?');
-        $values       = array_values($data);
+        $sql          = "INSERT INTO `$table` (`" . implode('`,`', $columns) . "`) VALUES (" . implode(',', $placeholders) . ")";
+        $stmt         = $this->pdo->prepare($sql);
 
         try {
-            if ($this->uniqueKey) {
-                $updateFields = [];
-                foreach ($columns as $col) {
-                    if ($col !== $this->uniqueKey) {
-                        $updateFields[] = "`$col` = VALUES(`$col`)";
-                    }
-                }
-
-                $sql = "INSERT INTO `$table` (`" . implode('`,`', $columns) . "`)
-                        VALUES (" . implode(',', $placeholders) . ")
-                        ON DUPLICATE KEY UPDATE " . implode(',', $updateFields);
-            } else {
-                $sql = "INSERT INTO `$table` (`" . implode('`,`', $columns) . "`)
-                        VALUES (" . implode(',', $placeholders) . ")";
-            }
-
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($values);
-
-            if ($this->uniqueKey && $stmt->rowCount() === 2) {
-                $this->updated++;
-            } else {
-                $this->inserted++;
-            }
-
-        } catch (PDOException $e) {
-            throw new \RuntimeException("Echèk SQL pandan enpòtasyon: " . $e->getMessage());
+            $stmt->execute(array_values($data));
+            $this->log("Done inserte: " . json_encode($data), "INSERT");
+            $this->summary['inserted']++;
+            return 'insert';
+        } catch (\Exception $e) {
+            $this->log("Echèk SQL pandan enpòtasyon: " . $e->getMessage(), "ERROR");
+            return 'error';
         }
+    }
+
+    protected function log(string $message, string $type = 'INFO')
+    {
+        $this->logs[] = ['log' => $message, 'type' => strtolower($type)];
+    }
+
+    public function getLogs(): array
+    {
+        return $this->logs;
     }
 
     public function getSummary(): array
     {
-        return [
-            'inserted' => $this->inserted,
-            'updated'  => $this->updated,
-        ];
+        return $this->summary;
     }
 }

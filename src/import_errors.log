@@ -4991,3 +4991,33 @@
 [2025-09-12 23:09:43] [ERROR] SQL Error INSERT/UPDATE: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'nom' in 'field list'
 [2025-09-12 23:09:43] [ERROR] SQL Error INSERT/UPDATE: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'nom' in 'field list'
 [2025-09-12 23:09:43] [ERROR] SQL Error INSERT/UPDATE: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'nom' in 'field list'
+[2025-09-13 00:25:04] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email'
+[2025-09-13 00:25:04] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email'
+[2025-09-13 00:25:04] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email'
+[2025-09-13 00:26:39] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:26:39] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:26:39] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:28:35] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:28:35] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:28:35] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:28:56] [INFO] Liy insert nan tab `users`: {"Nom":"Frantzley Adolphe ","Email":"frantzleyadolphe23@gmail.com","Age":"25"}
+[2025-09-13 00:28:56] [INFO] Liy insert nan tab `users`: {"Nom":"Dort Jonathan","Email":"jonatha@icloud.com","Age":"40"}
+[2025-09-13 00:28:56] [INFO] Liy insert nan tab `users`: {"Nom":"Joberno ","Email":"j@gmail.com","Age":"50"}
+[2025-09-13 00:29:21] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:29:21] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:29:21] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:32:27] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:32:27] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:32:27] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:36:33] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:36:33] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:36:33] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:38:10] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:38:10] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:38:10] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:39:24] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:39:24] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:39:24] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:40:28] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'frantzleyadolphe23@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:40:28] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'jonatha@icloud.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)
+[2025-09-13 00:40:28] [ERROR] SQL Error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'j@gmail.com' for key 'email' | SQL: INSERT INTO `users` (`Nom`,`Email`,`Age`) VALUES (?,?,?)

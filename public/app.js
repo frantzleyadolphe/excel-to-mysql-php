@@ -3,7 +3,10 @@ const progressBar = document.getElementById('progressBar');
 const logsDiv = document.getElementById('logs');
 const logFilter = document.getElementById('logFilter');
 
-let logs = []; // kenbe tout logs
+const importModal = document.getElementById('importModal');
+const closeModal = document.getElementById('closeModal');
+
+let logs = [];
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -38,6 +41,10 @@ form.addEventListener('submit', async (e) => {
                     if (data.log) logs.push({text: data.log, type: data.type});
                     if (data.summary) {
                         logs.push({text: `Import fini! Inserted: ${data.summary.inserted}, Updated: ${data.summary.updated}`, type: 'info'});
+                        
+                        // Reset form ak progress bar
+                        form.reset();
+                        progressBar.style.width = '0%';
                     }
                     renderLogs();
                     if (data.current) updateProgress(data.current, data.total || total);
@@ -45,9 +52,13 @@ form.addEventListener('submit', async (e) => {
             } catch(err) {
                 console.error(err);
             }
+              // Reset form ak progress bar
+                        form.reset();
         });
     }
 });
+
+
 
 // Fonksyon pou rander logs selon filtre
 function renderLogs() {
@@ -62,7 +73,7 @@ function renderLogs() {
 function addLogDiv(text, type) {
     const div = document.createElement('div');
     let color = 'text-gray-800';
-    if (type === 'insert') color = 'text-green-600';
+    if (type === 'insert') color = 'text-red-600';
     if (type === 'update') color = 'text-yellow-600';
     if (type === 'error') color = 'text-red-600';
     if (type === 'info') color = 'text-blue-600';
@@ -83,5 +94,4 @@ function updateProgress(current, total) {
     progressBar.style.width = percent + '%';
 }
 
-// Chanjman filtre
 logFilter.addEventListener('change', renderLogs);
