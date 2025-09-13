@@ -26,13 +26,6 @@ try {
 // Kreye importer
 $importer = new ExcelToMySQL(__DIR__ . "/data.xlsx", $pdo);
 
-// Set mapping: kolòn Excel => kolòn DB
-$importer->setMapping([
-    "Nom"   => "name",
-    "Email" => "email",
-    "Age"   => "age",
-]);
-
 // Set unique key (opsyonèl, men rekòmande)
 $importer->setUniqueKey("email");
 
@@ -47,6 +40,9 @@ $rows        = $sheet->toArray();
 // Retire headers
 $headers = array_shift($rows);
 $headers = array_map('trim', $headers);
+
+// 🚀 Auto mapping (pa bezwen mete setMapping manyèlman)
+$importer->autoMap($headers, true);
 
 // Retire ranje vid
 $rows = array_filter($rows, fn($r) => count(array_filter($r, fn($c) => trim($c) !== '')) > 0);
@@ -73,14 +69,11 @@ foreach ($rows as $index => $row) {
 
     if ($result === 'insert') {
         $inserted++;
-
     }
 
     if ($result === 'exists') {
         $exists++;
-
     }
-
 }
 
 // Summary

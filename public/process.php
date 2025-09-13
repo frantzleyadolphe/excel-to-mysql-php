@@ -20,8 +20,10 @@ try {
         throw new Exception("Pa gen fichye upload oswa gen yon erè.");
     }
 
-    $tableName = $_POST['table_name'] ?? 'sheet';
-    $uniqueKey = $_POST['unique_key'] ?? null;
+    $tableName     = $_POST['table_name'] ?? 'sheet';
+    $uniqueKey     = $_POST['unique_key'] ?? null;
+    $insertedCount = 0;
+    $existsCount   = 0;
 
     $uploadDir = __DIR__ . '/uploads';
     if (! is_dir($uploadDir)) {
@@ -82,6 +84,9 @@ try {
                 $data[$mapping[$header]] = $row[$i];
             }
         }
+
+        // Kreye tab la si li pa egziste
+        $importer->createTableIfNotExists($importer->getMapping() ? array_values($importer->getMapping()) : $headers);
 
         try {
             $result = $importer->insertOrUpdateRow($data);

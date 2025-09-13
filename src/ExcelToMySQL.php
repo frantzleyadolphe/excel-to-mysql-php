@@ -44,6 +44,70 @@ class ExcelToMySQL
         return $this->mapping;
     }
 
+    public function createTableIfNotExists(array $headers): void
+    {
+        if (! $this->tableName) {
+            throw new Exception("Ou dwe mete non tab la avan kreye li.");
+        }
+
+        $table = $this->tableName;
+
+        // prepare kolon yo
+        $columnsSQL = [];
+        foreach ($headers as $col) {
+            $col = trim($col);
+            if ($col !== '') {
+                $columnsSQL[] = "`$col` VARCHAR(255)";
+            }
+        }
+
+        $uniqueSQL = $this->uniqueKey ? ", UNIQUE(`{$this->uniqueKey}`)" : "";
+
+        $sql = "CREATE TABLE IF NOT EXISTS `$table` (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        " . implode(", ", $columnsSQL) . "
+        $uniqueSQL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+        $this->pdo->exec($sql);
+    }
+
+    /**
+     * Auto-map kolòn Excel yo → kolòn MySQL
+     * Si $createTable = true, li kreye tab la otomatikman si li pa egziste
+     */
+    public function autoMap(array $headers, bool $createTable = true): void
+    {
+        $mapping = [];
+
+        foreach ($headers as $header) {
+            if ($header) {
+                // konvèti header an safe SQL column name
+                $col              = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '_', $header), '_'));
+                $mapping[$header] = $col;
+            }
+        }
+
+        $this->mapping = $mapping;
+
+        if ($createTable && $this->tableName) {
+            $columnsSQL = [];
+            foreach ($mapping as $excelCol => $dbCol) {
+                $columnsSQL[] = "`$dbCol` VARCHAR(255)";
+            }
+
+            $uniqueSQL = $this->uniqueKey ? ", UNIQUE(`{$this->uniqueKey}`)" : "";
+            $sql       = "CREATE TABLE IF NOT EXISTS `{$this->tableName}` (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        " . implode(',', $columnsSQL) .
+                $uniqueSQL . "
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+
+            $this->pdo->exec($sql);
+            $this->log("Tab `{$this->tableName}` kreye oswa deja egziste.", "info");
+        }
+    }
+
     public function insertOrUpdateRow(array $data): string
     {
         if (! $this->tableName) {
@@ -90,8 +154,8 @@ class ExcelToMySQL
             $this->summary['inserted']++;
             return 'insert';
         } catch (\Exception $e) {
-            //$this->log("Echèk SQL pandan enpòtasyon: " . $e->getMessage(), "error");
             $this->summary['error']++;
+            //$this->log("Echèk SQL: " . $e->getMessage(), "error");
             return 'error';
         }
     }
@@ -99,7 +163,7 @@ class ExcelToMySQL
     protected function log(string $message, string $type = 'INFO')
     {
         $this->logs[] = ['log' => $message, 'type' => strtolower($type)];
-        error_log($message); // log nan terminal
+        ///error_log("[$type] $message"); // log nan terminal
     }
 
     public function getLogs(): array

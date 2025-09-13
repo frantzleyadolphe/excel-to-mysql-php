@@ -121,7 +121,7 @@ function addLogDiv(text, type) {
     }
 
     div.className = `flex items-center gap-2 ${color} bg-white/20 backdrop-blur-md shadow-md opacity-0 transition-opacity duration-700`;
-    div.innerHTML = `<span>${icon}</span> <span>${text}</span>`;
+    div.innerHTML = `<div class="flex items-center gap-2 bg-white w-full h-8 justify-center rounded-lg mb-4"><span>${icon}</span> <span>${text}</span></div>`;
     
     logsDiv.appendChild(div);
 
