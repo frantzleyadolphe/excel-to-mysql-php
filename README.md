@@ -33,7 +33,7 @@ Enstale via Composer:
 composer require frantzley/excel-to-mysql
 
 Kopi public/ folder ki enkli tout frontend + backend nan pwojè w la (pa bezwen modifye li). Estrikti a ap sanble konsa:
-```
+
 project-root/
 ├─ public/
 │  ├─ index.php      # Upload form ak UI
@@ -42,11 +42,11 @@ project-root/
 │  └─ ExcelToMySQL.php
 ├─ uploads/          # Folder pou fichye upload (kreye otomatik si li pa egziste)
 ├─ vendor/           # Composer dependencies
-```
 
 Asire w gen PhpSpreadsheet enstale:
-
+```
 composer require phpoffice/phpspreadsheet
+```
 ```
 ## ⚡ Usage
 ```
