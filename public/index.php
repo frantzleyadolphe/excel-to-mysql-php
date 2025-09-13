@@ -74,7 +74,7 @@
                 <div id="progressBar" class="bg-green-900 h-5 w-0 transition-all duration-500"></div>
             </div>
             <label class="text-lg text-black font-bold mt-2 block">Rapo sou rezilta yo 📝</label>
-            <div id="logs" class="mt-4  overflow-y-auto p-2 border rounded-lg bg-green-100"></div>
+            <div id="logs" class="mt-4 overflow-y-auto h-56 p-2 border rounded-lg bg-green-100"></div>
         </div>
 
 

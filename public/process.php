@@ -87,6 +87,7 @@ try {
 
         // Kreye tab la si li pa egziste
         $importer->createTableIfNotExists($importer->getMapping() ? array_values($importer->getMapping()) : $headers);
+        // Eseye insert oubyen update
 
         try {
             $result = $importer->insertOrUpdateRow($data);
