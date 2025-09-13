@@ -15,6 +15,7 @@ class ExcelToMySQL
     protected array $summary     = [
         'inserted' => 0,
         'exists'   => 0,
+        'error'    => 0,
     ];
 
     public function __construct(string $filePath, PDO $pdo)
@@ -46,21 +47,33 @@ class ExcelToMySQL
 
         $table = $this->tableName;
 
-        // Tcheke kle inik
-        if ($this->uniqueKey && isset($data[$this->uniqueKey])) {
+        // Verifye si done a deja egziste si gen uniqueKey
+        if ($this->uniqueKey) {
             $parts     = explode('.', $this->uniqueKey);
             $uniqueCol = $parts[1] ?? $parts[0];
 
-            $stmtCheck = $this->pdo->prepare("SELECT COUNT(*) FROM `$table` WHERE `$uniqueCol` = ?");
-            $stmtCheck->execute([$data[$this->uniqueKey]]);
-            if ($stmtCheck->fetchColumn() > 0) {
-                $this->log("Done deja egziste: " . json_encode($data), "INFO");
-                $this->summary['error']++;
-                return 'error';
+            $possibleKeys = [$this->uniqueKey, $uniqueCol];
+            $uniqueValue  = null;
+
+            foreach ($possibleKeys as $key) {
+                if (isset($data[$key])) {
+                    $uniqueValue = $data[$key];
+                    break;
+                }
+            }
+
+            if ($uniqueValue !== null) {
+                $stmtCheck = $this->pdo->prepare("SELECT COUNT(*) FROM `$table` WHERE `$uniqueCol` = ?");
+                $stmtCheck->execute([$uniqueValue]);
+                if ($stmtCheck->fetchColumn() > 0) {
+                    $this->log("Done deja egziste: " . json_encode($data), "info");
+                    $this->summary['exists']++;
+                    return 'exists';
+                }
             }
         }
 
-        // Insert done si pa deja egziste
+        // Insert done si li pa egziste
         $columns      = array_keys($data);
         $placeholders = array_fill(0, count($columns), '?');
         $sql          = "INSERT INTO `$table` (`" . implode('`,`', $columns) . "`) VALUES (" . implode(',', $placeholders) . ")";
@@ -68,11 +81,12 @@ class ExcelToMySQL
 
         try {
             $stmt->execute(array_values($data));
-            $this->log("Done inserte: " . json_encode($data), "INSERT");
+            $this->log("Done inserte: " . json_encode($data), "insert");
             $this->summary['inserted']++;
             return 'insert';
         } catch (\Exception $e) {
-            $this->log("Echèk SQL pandan enpòtasyon: " . $e->getMessage(), "ERROR");
+            //$this->log("Echèk SQL pandan enpòtasyon: " . $e->getMessage(), "error");
+            $this->summary['error']++;
             return 'error';
         }
     }
@@ -80,6 +94,7 @@ class ExcelToMySQL
     protected function log(string $message, string $type = 'INFO')
     {
         $this->logs[] = ['log' => $message, 'type' => strtolower($type)];
+        error_log($message); // log nan terminal
     }
 
     public function getLogs(): array

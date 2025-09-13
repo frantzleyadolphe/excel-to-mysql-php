@@ -73,9 +73,10 @@ function renderLogs() {
 function addLogDiv(text, type) {
     const div = document.createElement('div');
     let color = 'text-gray-800';
-    if (type === 'insert') color = 'text-red-600';
+    if (type === 'insert') color = 'text-green-600';
+    if (type === 'exists') color = 'text-red-600';
     if (type === 'update') color = 'text-yellow-600';
-    if (type === 'error') color = 'text-red-600';
+    if (type === 'error') color = 'text-red-900';
     if (type === 'info') color = 'text-blue-600';
 
     div.className = `${color} opacity-0 transition-opacity duration-700`;

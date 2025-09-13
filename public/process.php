@@ -43,33 +43,23 @@ try {
         throw new Exception("Fichye Excel la vid.");
     }
 
-    // Retire headers
     $headers = array_shift($rows);
     $headers = array_map('trim', $headers);
 
-    // Filtre headers vid
+    // Mapping headers
     $mapping = [];
     foreach ($headers as $header) {
         if ($header !== '') {
             $mapping[$header] = $header;
         }
-
     }
+
     $importer->setMapping($mapping);
 
-    // Retire ranje ki totalman vid
-    $rows = array_filter($rows, function ($row) {
-        foreach ($row as $cell) {
-            if (trim($cell) !== '') {
-                return true;
-            }
+    // Retire ranje ki vid
+    $rows = array_filter($rows, fn($row) => count(array_filter($row, fn($cell) => trim($cell) !== '')) > 0);
 
-        }
-        return false;
-    });
-
-    $totalRows        = count($rows);
-    $_SESSION['logs'] = [];
+    $totalRows = count($rows);
 
     foreach ($rows as $rowIndex => $row) {
         $data = [];
@@ -77,26 +67,19 @@ try {
             if (isset($mapping[$header])) {
                 $data[$mapping[$header]] = $row[$index];
             }
+
         }
 
-        try {
-            $type     = $importer->insertOrUpdateRow($data); // retounen 'insert', 'exists', 'error'
-            $logEntry = [
-                'log'  => match ($type) {
-                    'insert' => "Liy #" . ($rowIndex + 2) . " ajoute nan DB",
-                    'error'  => "Liy #" . ($rowIndex + 2) . " deja egziste nan DB li sote l",
+        $type = $importer->insertOrUpdateRow($data);
 
-                },
-                'type' => $type,
-            ];
-        } catch (\Exception $e) {
-            $logEntry = [
-                'log'  => "Error nan liy #" . ($rowIndex + 2) . ": " . $e->getMessage(),
-                'type' => 'error',
-            ];
-        }
-
-        $_SESSION['logs'][] = $logEntry;
+        $logEntry = [
+            'log'  => match ($type) {
+                'insert' => "Liy #" . ($rowIndex + 2) . " ajoute nan DB",
+                'exists' => "Liy #" . ($rowIndex + 2) . " deja egziste nan DB li sote",
+                'error'  => "Liy #" . ($rowIndex + 2) . " gen erè pandan insertion",
+            },
+            'type' => $type,
+        ];
 
         echo json_encode([
             'log'     => $logEntry['log'],
@@ -106,10 +89,11 @@ try {
         ]) . "\n";
         flush();
     }
+
     $response['summary'] = $importer->getSummary();
-    echo json_encode($response);
+    //echo json_encode($response);
 
 } catch (Exception $e) {
     $response['error'] = $e->getMessage();
-    echo json_encode($response);
+    //echo json_encode($response);
 }
