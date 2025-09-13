@@ -70,19 +70,18 @@ Wouj → erè
 Otomatik: Premye ranje nan Excel la sèvi kòm header; kolòn DB yo pran menm non.
 
 Manyèl: Ou ka chanje kolòn DB yo si bezwen:
-```
+
 $importer->setMapping([
     "Excel Name"  => "db_name",
     "Excel Email" => "db_email"
 ]);
-```
 
 Tab la kreye otomatikman selon mapping lan.
 ```
 ## 📦 Example PHP Usage
 ```
 Ou ka itilize klas ExcelToMySQL nan pwòp kòd PHP ou tou:
-```
+
 require __DIR__ . '/vendor/autoload.php';
 
 use Frantzley\ExcelToMySQL;
@@ -106,7 +105,7 @@ $result = $importer->insertOrUpdateRow([
 ]);
 
 print_r($result);
-```
+
 ```
 ## ⚙ Requirements
 ```
