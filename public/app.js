@@ -70,17 +70,59 @@ function renderLogs() {
     });
 }
 
+// function addLogDiv(text, type) {
+//     const div = document.createElement('div');
+//     let color = 'text-gray-800';
+//     if (type === 'insert') color = 'text-green-600';
+//     if (type === 'exists') color = 'text-red-600';
+//     if (type === 'update') color = 'text-yellow-600';
+//     if (type === 'error') color = 'text-red-900';
+//     if (type === 'info') color = 'text-blue-600';
+
+//     div.className = `${color} opacity-0 transition-opacity duration-700`;
+//     div.textContent = text;
+//     logsDiv.appendChild(div);
+
+//     setTimeout(() => {
+//         div.classList.add('opacity-100');
+//         logsDiv.scrollTop = logsDiv.scrollHeight;
+//     }, 50);
+// }
+
 function addLogDiv(text, type) {
     const div = document.createElement('div');
     let color = 'text-gray-800';
-    if (type === 'insert') color = 'text-green-600';
-    if (type === 'exists') color = 'text-red-600';
-    if (type === 'update') color = 'text-yellow-600';
-    if (type === 'error') color = 'text-red-900';
-    if (type === 'info') color = 'text-blue-600';
+    let icon = '';
 
-    div.className = `${color} opacity-0 transition-opacity duration-700`;
-    div.textContent = text;
+    switch(type) {
+        case 'insert':
+            color = 'text-green-600';
+            icon = '✔️';
+            break;
+        case 'exists':
+            color = 'text-red-600';
+            icon = '⚠️';
+            break;
+        case 'update':
+            color = 'text-yellow-600';
+            icon = '📝';
+            break;
+        case 'error':
+            color = 'text-red-900';
+            icon = '❌';
+            break;
+        case 'info':
+            color = 'text-blue-600';
+            icon = 'ℹ️';
+            break;
+        default:
+            color = 'text-gray-800';
+            icon = '•';
+    }
+
+    div.className = `flex items-center gap-2 ${color} bg-white/20 backdrop-blur-md shadow-md opacity-0 transition-opacity duration-700`;
+    div.innerHTML = `<span>${icon}</span> <span>${text}</span>`;
+    
     logsDiv.appendChild(div);
 
     setTimeout(() => {
@@ -88,6 +130,7 @@ function addLogDiv(text, type) {
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }, 50);
 }
+
 
 function updateProgress(current, total) {
     if (!total) return;
