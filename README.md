@@ -52,6 +52,10 @@ composer require frantzley/excel-to-mysql
 ```
 ## Usage with limit and specific tableName
 ```
+```
+kreye yon fichier process.php ou kapab rele li janw vle tou
+epi mete kod sa yo ak estrikti ou vle tab lan genyen ki match ak excel file lan
+```
 use Frantzley\ExcelToMySQL;
 
 $importer = new ExcelToMySQL(__DIR__ . "/data.xlsx", $pdo, __DIR__ . "/import.log");
@@ -72,13 +76,31 @@ $importer->setUniqueKey("email");
 // Limite a sèlman 10 liy
 $importer->setLimitRows(10);
 
-// Kouri import
+//  import
 $importer->run();
 
 $summary = $importer->getSummary();
 echo "✅ Done imported! Nouvo: {$summary['inserted']} | Mizajou: {$summary['updated']}\n";
 echo "Log file: " . __DIR__ . "/import.log\n";
+```
+Lanse script lan ak PHP CLI siw se devlope pou pi rapid
+```
+php process.php
 
+```
+Pou lanse web entefas lan 
+```
+Ale nan folder public/:
+```
+---> cd public
+```
+epi answit
+```
+--->php -S localhost:8000 -t .
+```
+ouvri navigatè ou sou:
+http://localhost:8000 oubyen port ou genyen 
+Upload fichye Excel ou a, chwazi non tab ou ak unique key si ou vle.
 ```
 ## SQL Example
 ```
