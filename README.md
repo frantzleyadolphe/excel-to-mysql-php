@@ -1,30 +1,34 @@
 ## Excel to MySQL Web Importer
 ```
-Yon aplikasyon web ki la pou ede w fasilman enpòte fichye Excel (.xls / .xlsx)
-dirèkteman nan yon baz done MySQL.
+Yon pake PHP ki pèmèt ou enpòte done soti nan fichye Excel (`.xls` / `.xlsx`)
+nan yon baz done MySQL avèk tout opsyon sa yo ki nan pwen kle
 Li fèt pou devlopè ak itilizatè ki bezwen yon travay rapid, epi li ofri
 yon UI senp ak fonctionnalités avanse tankou live logs,
 progress bar, ak filtre logs.
+
+
+
+
 ```
-## Pwen kle
+## Enstalasyon via Composer
+
 ```
-Backend ki otomatikman trete fichye Excel la → MySQL.
-Kreye tab otomatik si li pa egziste.
-Insert oswa update done selon yon kle inik men li opsyonel.
-Mapping kolòn Excel pou kreye non kolonn yo → kolòn DB otomatik oswa ou kapab fel ou menm manyèl.
-Log pou we jan pwosedi an ye ak koulè: ble (insert), jòn (exists), wouj (erè).
+bash
+composer require frantzley/excel-to-mysql
+
 ```
 ## 🛠 Features
 ```
-Fully ready-to-use: pa bezwen kreye process.php oswa modifye kòd.
+- Kreye baz done otomatik si li pa egziste.
+- Kreye tab otomatik selon headers nan Excel.
+- Insert / Update done otomatik.
+- Kle inik pou evite doublon.
+- Logs dinamik ak filtraj (`insert`, `update`, `exists`, `error`, `info`).
+- Progress bar pou montre pwogrè.
+- Mesaj erè koneksyon nan logs UI.
+- Responsiv UI ak Tailwind CSS ak glassmorphism effect pou logs.
 
-Mapping kolòn otomatik soti nan header Excel.
-
-Opsyon pou mapping manyèl.
-
-Afichaj log vivan pandan import.
-
-Travay ak .xlsx Excel files.
+---
 ```
 ## 💻 Installation
 ```
