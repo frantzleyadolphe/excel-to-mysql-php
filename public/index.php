@@ -155,7 +155,7 @@
     <!-- Logs output -->
     <div>
         <label class="text-lg text-black font-bold block mb-2">Rapo sou rezilta yo 📝</label>
-        <div id="logs" class="overflow-y-auto h-40 p-2 border rounded-lg bg-green-100"></div>
+        <div id="logs" class="overflow-y-auto h-20 p-2 border rounded-lg bg-green-100"></div>
     </div>
 </div>
 

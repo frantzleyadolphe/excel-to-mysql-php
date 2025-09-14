@@ -41,9 +41,18 @@ try {
     $pdo = new PDO("mysql:host=$dbHost;charset=utf8mb4", $dbUser, $dbPass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Kreye baz done si li pa egziste
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $logMessage = writeLog("Baz done '$dbName' pa t egziste, li te kreye otomatikman ✅");
+    // Tcheke si baz done a egziste deja
+    $stmt   = $pdo->query("SHOW DATABASES LIKE '$dbName'");
+    $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($exists) {
+        // Baz done deja egziste
+        $logMessage = writeLog("Baz done '$dbName' deja egziste, pa kreye li ankò ⚠️");
+    } else {
+        // Kreye baz done si li pa egziste
+        $pdo->exec("CREATE DATABASE `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        $logMessage = writeLog("Baz done '$dbName' pa t egziste, li te kreye otomatikman ✅");
+    }
     echo json_encode(['log' => $logMessage, 'type' => 'info', 'current' => 0, 'total' => 0]) . "\n";
     flush();
 

@@ -126,15 +126,20 @@ function addLogDiv(text, type) {
     }
 
     div.className = `flex items-center gap-2 ${color} bg-white/20 backdrop-blur-md shadow-md opacity-0 transition-opacity duration-700`;
-    div.innerHTML = `<div class="flex items-center gap-2 bg-white w-full h-8 justify-center rounded-lg mb-4"><span>${icon}</span> <span>${text}</span></div>`;
+    div.innerHTML = `<div class="flex items-center gap-2 bg-white w-full h-8 justify-center rounded-lg mb-2"><span>${icon}</span> <span>${text}</span></div>`;
     
     logsDiv.appendChild(div);
+
+    // **Ajiste wotè dinamik selon kantite log**
+    const logCount = logsDiv.children.length;
+    logsDiv.style.height = Math.min(logCount * 34, 300) + 'px'; // chak log ~34px
 
     setTimeout(() => {
         div.classList.add('opacity-100');
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }, 50);
 }
+
 
 
 function updateProgress(current, total) {
