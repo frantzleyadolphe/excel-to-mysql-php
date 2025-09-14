@@ -1,30 +1,23 @@
 ## Excel to MySQL Web Importer
 ```
-Yon aplikasyon web ki la pou ede w fasilman enpòte fichye Excel (.xls / .xlsx)
-dirèkteman nan yon baz done MySQL.
+Yon pake PHP ki pèmèt ou enpòte done soti nan fichye Excel (`.xls` / `.xlsx`)
+nan yon baz done MySQL avèk tout opsyon sa yo ki nan pwen kle
 Li fèt pou devlopè ak itilizatè ki bezwen yon travay rapid, epi li ofri
 yon UI senp ak fonctionnalités avanse tankou live logs,
 progress bar, ak filtre logs.
 ```
-## Pwen kle
-```
-Backend ki otomatikman trete fichye Excel la → MySQL.
-Kreye tab otomatik si li pa egziste.
-Insert oswa update done selon yon kle inik men li opsyonel.
-Mapping kolòn Excel pou kreye non kolonn yo → kolòn DB otomatik oswa ou kapab fel ou menm manyèl.
-Log pou we jan pwosedi an ye ak koulè: ble (insert), jòn (exists), wouj (erè).
-```
 ## 🛠 Features
 ```
-Fully ready-to-use: pa bezwen kreye process.php oswa modifye kòd.
+- Kreye baz done otomatik si li pa egziste.
+- Kreye tab otomatik selon headers nan Excel.
+- Insert / Update done otomatik.
+- Kle inik pou evite doublon.
+- Logs dinamik ak filtraj (`insert`, `update`, `exists`, `error`, `info`).
+- Progress bar pou montre pwogrè.
+- Mesaj erè koneksyon nan logs UI.
+- Responsiv UI ak Tailwind CSS ak glassmorphism effect pou logs.
 
-Mapping kolòn otomatik soti nan header Excel.
-
-Opsyon pou mapping manyèl.
-
-Afichaj log vivan pandan import.
-
-Travay ak .xlsx Excel files.
+---
 ```
 ## 💻 Installation
 ```
@@ -39,7 +32,8 @@ composer require frantzley/excel-to-mysql
 
 project-root/
 ├─ public/
-│  ├─ index.php      # Upload form ak UI
+│  ├─ index.php # Upload form ak UI
+   ├─ app.js     #js file
 │  ├─ process.php    # Backend processing (pre-bati)
 ├─ src/
 │  └─ ExcelToMySQL.php
@@ -81,33 +75,37 @@ $importer->setMapping([
 
 Tab la kreye otomatikman selon mapping lan.
 ```
-## 📦 Example PHP Usage
+## 📦 Example pou test PHP Usage
 ```
-Ou ka itilize klas ExcelToMySQL nan pwòp kòd PHP ou tou:
 
+<?php
 require __DIR__ . '/vendor/autoload.php';
 
 use Frantzley\ExcelToMySQL;
 
+// Koneksyon PDO
 $pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8mb4", "root", "");
-$importer = new ExcelToMySQL("uploads/data.xlsx", $pdo);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$importer->setTableName("users");
-$importer->setUniqueKey("email");
-$importer->setMapping([
-    "Name"  => "name",
-    "Email" => "email",
-    "Phone" => "phone"
-]);
+// Inisyalize importer
+$importer = new ExcelToMySQL("chemin/fiche.xlsx", $pdo);
 
-$importer->createTableIfNotExists(array_values($importer->getMapping()));
-$result = $importer->insertOrUpdateRow([
-    "name"  => "John Doe",
-    "email" => "john@example.com",
-    "phone" => "123456789"
-]);
+// Opsyonèl: mete non tab la ak kle inik
+$importer->setTableName('users');
+$importer->setUniqueKey('email');
 
-print_r($result);
+// Kreye tab si li pa egziste
+$importer->createTableIfNotExists();
+
+// Insert / Update done
+$rows = $importer->getRowsFromExcel();
+foreach ($rows as $row) {
+    $importer->insertOrUpdateRow($row);
+}
+
+// Summary
+print_r($importer->getSummary());
+
 
 ```
 ## ⚙ Requirements
@@ -122,6 +120,44 @@ PhpSpreadsheet
 ```
 Pa bezwen kreye process.php. Tout backend processing deja enkli nan package la.
 
-Yo sèlman bezwen navigue nan index.php, upload fichye Excel, epi log ap montre yo insert / exists / error vivan.
-
+wap sèlman bezwen lanse proje an epi navigue nan index.php pou lanse paj web lan epi ranpli champ pou upload fichye Excel, epi log ap montre yo insert / exists / error.
 Tout folder nesesè (uploads/) kreye otomatikman si li pa egziste.
+```
+Pake a sipòte:
+```
+1. Kreye Baz Done Otomatik
+
+Si baz done a pa egziste → li kreye li epi voye log Baz done 'xxx' pa t egziste, li te kreye otomatikman ✅.
+
+Si li egziste → pa kreye li ankò epi voye log Baz done 'xxx' deja egziste ⚠️.
+
+Si gen erè koneksyon → voye log Erè koneksyon ak baz done 'xxx': [detay erè] ❌.
+
+2. Kreye Tab Otomatik
+
+Tab kreye selon headers nan Excel.
+
+Headers vid yo ignore.
+
+Ranje vid totalman retire.
+
+3. Insert / Update
+
+Insert nouvo liy si li pa egziste.
+
+Update si kle inik deja egziste.
+
+Logs montre chak aksyon.
+
+4. Logs Dinamik
+
+Filtre logs selon tip (insert, update, exists, error, info).
+
+Wotè logs ajiste selon kantite log.
+
+Scroll otomatik pou dènye log.
+
+5. Progress Bar
+
+Montre pwogrè a selon kantite ranje enpòte.
+
