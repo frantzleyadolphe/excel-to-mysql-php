@@ -10,6 +10,7 @@ progress bar, ak filtre logs.
 ```
 - Kreye baz done otomatik si li pa egziste.
 - Kreye tab otomatik selon headers nan Excel.
+- Li sipote fichye ki gen plizye sheets
 - Insert / Update done otomatik.
 - Kle inik pou evite doublon.
 - Logs dinamik ak filtraj (`insert`, `update`, `exists`, `error`, `info`).
@@ -17,13 +18,14 @@ progress bar, ak filtre logs.
 - Mesaj erè koneksyon nan logs UI.
 - Responsiv UI ak Tailwind CSS ak glassmorphism effect pou logs.
 
+
 ---
 ```
 ## 💻 Installation
 ```
-Enstale via Composer:
-```
 
+```
+Enstale via Composer:
 ```
 composer require frantzley/excel-to-mysql
 ```
