@@ -32,7 +32,8 @@ composer require frantzley/excel-to-mysql
 
 project-root/
 ├─ public/
-│  ├─ index.php      # Upload form ak UI
+│  ├─ index.php # Upload form ak UI
+   ├─ app.js     #js file
 │  ├─ process.php    # Backend processing (pre-bati)
 ├─ src/
 │  └─ ExcelToMySQL.php
