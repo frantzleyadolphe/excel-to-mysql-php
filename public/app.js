@@ -3,10 +3,45 @@ const progressBar = document.getElementById('progressBar');
 const logsDiv = document.getElementById('logs');
 const logFilter = document.getElementById('logFilter');
 
-const importModal = document.getElementById('importModal');
-const closeModal = document.getElementById('closeModal');
-
 let logs = [];
+
+const sheetSelectorDiv = document.getElementById('sheetSelection');
+const sheetSelect = sheetSelectorDiv.querySelector('select[name="sheet_name"]');
+const excelFileInput = form.querySelector('input[name="excel_file"]');
+const toggleBtn = document.getElementById("toggleDbSettings");
+const dbSettings = document.getElementById("dbSettings");
+
+excelFileInput.addEventListener('change', async () => {
+    const file = excelFileInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('excel_file', file);
+
+    try {
+        const response = await fetch('get_sheets.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.sheets && data.sheets.length > 0) {
+            sheetSelect.innerHTML = '<option value="">-- Chwazi yon sheet --</option>';
+            data.sheets.forEach(sheet => {
+                const option = document.createElement('option');
+                option.value = sheet;
+                option.textContent = sheet;
+                sheetSelect.appendChild(option);
+            });
+            sheetSelectorDiv.classList.remove('hidden');
+        } else {
+            sheetSelectorDiv.classList.add('hidden');
+        }
+    } catch (err) {
+        console.error('Erè pandan li lis sheet yo:', err);
+        sheetSelectorDiv.classList.add('hidden');
+    }
+});
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -20,6 +55,14 @@ form.addEventListener('submit', async (e) => {
         method: 'POST',
         body: formData
     });
+
+    // Nou pran sheet seleksyone a
+    const selectedSheet = sheetSelect.value;
+    if (selectedSheet) {
+        logs.push({text: `Sheet ki te chwazi pou import: "${selectedSheet}" 📄`, type: 'info'});
+        renderLogs();
+    }
+
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -40,11 +83,10 @@ form.addEventListener('submit', async (e) => {
                 if (data.log || data.summary) {
                     if (data.log) logs.push({text: data.log, type: data.type});
                     if (data.summary) {
-                        logs.push({text: `Import fini! Inserted: ${data.summary.inserted}, Updated: ${data.summary.updated}`, type: 'info'});
-                        
-                        // Reset form ak progress bar
+                        logs.push({text: `Import fini! Inserted: ${data.summary.inserted}, Exists: ${data.summary.exists}`, type: 'info'});
                         form.reset();
                         progressBar.style.width = '0%';
+                        sheetSelectorDiv.classList.add('hidden');
                     }
                     renderLogs();
                     if (data.current) updateProgress(data.current, data.total || total);
@@ -52,20 +94,17 @@ form.addEventListener('submit', async (e) => {
             } catch(err) {
                 console.error(err);
             }
-              // Reset form ak progress bar
-                        form.reset();
         });
     }
 });
 
-const toggleBtn = document.getElementById("toggleDbSettings");
-    const dbSettings = document.getElementById("dbSettings");
 
-    toggleBtn.addEventListener("click", () => {
-        dbSettings.classList.toggle("hidden");
-    });
 
-// Fonksyon pou rander logs selon filtre
+toggleBtn.addEventListener("click", () => {
+    dbSettings.classList.toggle("hidden");
+});
+
+// Rander logs selon filtre
 function renderLogs() {
     const filter = logFilter.value;
     logsDiv.innerHTML = '';
@@ -75,72 +114,32 @@ function renderLogs() {
     });
 }
 
-// function addLogDiv(text, type) {
-//     const div = document.createElement('div');
-//     let color = 'text-gray-800';
-//     if (type === 'insert') color = 'text-green-600';
-//     if (type === 'exists') color = 'text-red-600';
-//     if (type === 'update') color = 'text-yellow-600';
-//     if (type === 'error') color = 'text-red-900';
-//     if (type === 'info') color = 'text-blue-600';
-
-//     div.className = `${color} opacity-0 transition-opacity duration-700`;
-//     div.textContent = text;
-//     logsDiv.appendChild(div);
-
-//     setTimeout(() => {
-//         div.classList.add('opacity-100');
-//         logsDiv.scrollTop = logsDiv.scrollHeight;
-//     }, 50);
-// }
-
 function addLogDiv(text, type) {
     const div = document.createElement('div');
     let color = 'text-gray-800';
     let icon = '';
 
     switch(type) {
-        case 'insert':
-            color = 'text-green-600';
-            icon = '✔️';
-            break;
-        case 'exists':
-            color = 'text-red-600';
-            icon = '⚠️';
-            break;
-        case 'update':
-            color = 'text-yellow-600';
-            icon = '📝';
-            break;
-        case 'error':
-            color = 'text-red-900';
-            icon = '❌';
-            break;
-        case 'info':
-            color = 'text-blue-600';
-            icon = 'ℹ️';
-            break;
-        default:
-            color = 'text-gray-800';
-            icon = '•';
+        case 'insert': color = 'text-green-600'; icon = '✔️'; break;
+        case 'exists': color = 'text-red-600'; icon = '⚠️'; break;
+        case 'update': color = 'text-yellow-600'; icon = '📝'; break;
+        case 'error': color = 'text-red-900'; icon = '❌'; break;
+        case 'info': color = 'text-blue-600'; icon = 'ℹ️'; break;
+        default: color = 'text-gray-800'; icon = '•';
     }
 
     div.className = `flex items-center gap-2 ${color} bg-white/20 backdrop-blur-md shadow-md opacity-0 transition-opacity duration-700`;
     div.innerHTML = `<div class="flex items-center gap-2 bg-white w-full h-8 justify-center rounded-lg mb-2"><span>${icon}</span> <span>${text}</span></div>`;
     
     logsDiv.appendChild(div);
-
-    // **Ajiste wotè dinamik selon kantite log**
     const logCount = logsDiv.children.length;
-    logsDiv.style.height = Math.min(logCount * 34, 300) + 'px'; // chak log ~34px
+    logsDiv.style.height = Math.min(logCount * 34, 300) + 'px';
 
     setTimeout(() => {
         div.classList.add('opacity-100');
         logsDiv.scrollTop = logsDiv.scrollHeight;
     }, 50);
 }
-
-
 
 function updateProgress(current, total) {
     if (!total) return;

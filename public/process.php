@@ -22,6 +22,7 @@ try {
 
     $tableName     = $_POST['table_name'] ?? 'sheet';
     $uniqueKey     = $_POST['unique_key'] ?? null;
+    $sheetName     = $_POST['sheet_name'] ?? null; // sheet chwazi pa itilizatè a
     $insertedCount = 0;
     $existsCount   = 0;
     $dbHost        = $_POST['db_host'] ?? 'localhost';
@@ -46,17 +47,14 @@ try {
     $exists = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($exists) {
-        // Baz done deja egziste
         $logMessage = writeLog("Baz done '$dbName' deja egziste, pa kreye li ankò ⚠️");
     } else {
-        // Kreye baz done si li pa egziste
         $pdo->exec("CREATE DATABASE `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         $logMessage = writeLog("Baz done '$dbName' pa t egziste, li te kreye otomatikman ✅");
     }
     echo json_encode(['log' => $logMessage, 'type' => 'info', 'current' => 0, 'total' => 0]) . "\n";
     flush();
 
-    // Sèvi ak baz done a
     $pdo->exec("USE `$dbName`");
 
     $importer = new ExcelToMySQL($filePath, $pdo);
@@ -66,8 +64,15 @@ try {
     }
 
     $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-    $sheet       = $spreadsheet->getActiveSheet();
-    $rows        = $sheet->toArray();
+
+    // **Si itilizatè chwazi sheet, pran li, sinon pran active sheet**
+    if ($sheetName && in_array($sheetName, $spreadsheet->getSheetNames())) {
+        $sheet = $spreadsheet->getSheetByName($sheetName);
+    } else {
+        $sheet = $spreadsheet->getActiveSheet();
+    }
+
+    $rows = $sheet->toArray();
 
     if (empty($rows)) {
         throw new Exception("Fichye Excel la vid.");
@@ -85,10 +90,8 @@ try {
 
     $importer->setMapping($mapping);
 
-    // Retire ranje vid totalman
     $rows = array_filter($rows, fn($row) => array_filter($row, fn($cell) => trim($cell) !== ''));
 
-    // Kreye tab si li pa egziste
     $createdTable = $importer->createTableIfNotExists(array_values($mapping));
     if ($createdTable) {
         $logMessage = writeLog("Tab la '$tableName' pa t egziste, li te kreye otomatikman ✅");
@@ -104,7 +107,6 @@ try {
             if (isset($mapping[$header])) {
                 $data[$mapping[$header]] = $row[$i];
             }
-
         }
 
         try {
@@ -135,7 +137,6 @@ try {
         flush();
     }
 
-    // Send summary nan fen
     $summary = $importer->getSummary();
     echo json_encode([
         'log' => writeLog("Import fini! Nouvo: {$summary['inserted']}, Deja egziste: {$summary['exists']}"),
@@ -144,7 +145,6 @@ try {
     ]);
 
 } catch (\Exception $e) {
-    // Si gen erè nan koneksyon an
     $logMessage = writeLog("Erè koneksyon ak baz done '$dbName': " . $e->getMessage());
     echo json_encode([
         'log'     => $logMessage,
@@ -153,5 +153,5 @@ try {
         'total'   => 0,
     ]) . "\n";
     flush();
-    exit; // sispann script si koneksyon an echwe
+    exit;
 }
