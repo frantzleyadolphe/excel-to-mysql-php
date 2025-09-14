@@ -58,7 +58,12 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
+const toggleBtn = document.getElementById("toggleDbSettings");
+    const dbSettings = document.getElementById("dbSettings");
 
+    toggleBtn.addEventListener("click", () => {
+        dbSettings.classList.toggle("hidden");
+    });
 
 // Fonksyon pou rander logs selon filtre
 function renderLogs() {

@@ -24,6 +24,10 @@ try {
     $uniqueKey     = $_POST['unique_key'] ?? null;
     $insertedCount = 0;
     $existsCount   = 0;
+    $dbHost        = $_POST['db_host'] ?? 'localhost';
+    $dbUser        = $_POST['db_user'] ?? 'root';
+    $dbPass        = $_POST['db_pass'] ?? '';
+    $dbName        = $_POST['db_name'] ?? 'testdb';
 
     $uploadDir = __DIR__ . '/uploads';
     if (! is_dir($uploadDir)) {
@@ -33,8 +37,18 @@ try {
     $filePath = $uploadDir . '/' . basename($_FILES['excel_file']['name']);
     move_uploaded_file($_FILES['excel_file']['tmp_name'], $filePath);
 
-    $pdo = new PDO("mysql:host=localhost;dbname=testdb;charset=utf8mb4", "root", "");
+    // Koneksyon PDO san baz done pou ka kreye li si bezwen
+    $pdo = new PDO("mysql:host=$dbHost;charset=utf8mb4", $dbUser, $dbPass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Kreye baz done si li pa egziste
+    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $logMessage = writeLog("Baz done '$dbName' pa t egziste, li te kreye otomatikman ✅");
+    echo json_encode(['log' => $logMessage, 'type' => 'info', 'current' => 0, 'total' => 0]) . "\n";
+    flush();
+
+    // Sèvi ak baz done a
+    $pdo->exec("USE `$dbName`");
 
     $importer = new ExcelToMySQL($filePath, $pdo);
     $importer->setTableName($tableName);
@@ -50,9 +64,7 @@ try {
         throw new Exception("Fichye Excel la vid.");
     }
 
-    // Retire headers
-    $headers = array_shift($rows);
-    $headers = array_map('trim', $headers);
+    $headers = array_map('trim', array_shift($rows));
 
     // Filtre headers vid
     $mapping = [];
@@ -60,20 +72,20 @@ try {
         if ($header !== '') {
             $mapping[$header] = $header;
         }
-
     }
+
     $importer->setMapping($mapping);
 
-    // Retire ranje ki vid totalman
-    $rows = array_filter($rows, function ($row) {
-        foreach ($row as $cell) {
-            if (trim($cell) !== '') {
-                return true;
-            }
+    // Retire ranje vid totalman
+    $rows = array_filter($rows, fn($row) => array_filter($row, fn($cell) => trim($cell) !== ''));
 
-        }
-        return false;
-    });
+    // Kreye tab si li pa egziste
+    $createdTable = $importer->createTableIfNotExists(array_values($mapping));
+    if ($createdTable) {
+        $logMessage = writeLog("Tab la '$tableName' pa t egziste, li te kreye otomatikman ✅");
+        echo json_encode(['log' => $logMessage, 'type' => 'info', 'current' => 0, 'total' => 0]) . "\n";
+        flush();
+    }
 
     $totalRows = count($rows);
 
@@ -83,22 +95,17 @@ try {
             if (isset($mapping[$header])) {
                 $data[$mapping[$header]] = $row[$i];
             }
-        }
 
-        // Kreye tab la si li pa egziste
-        $importer->createTableIfNotExists($importer->getMapping() ? array_values($importer->getMapping()) : $headers);
-        // Eseye insert oubyen update
+        }
 
         try {
             $result = $importer->insertOrUpdateRow($data);
-            // Ogmante kontè yo
             match ($result) {
                 'insert' => $insertedCount++,
                 'exists' => $existsCount++,
                 default  => null,
             };
 
-            // Fè log ak writeLog()
             $logMessage = match ($result) {
                 'insert' => writeLog("Liy #" . ($rowIndex + 2) . " ajoute nan DB, | Nouvo: $insertedCount"),
                 'exists' => writeLog("Liy #" . ($rowIndex + 2) . " deja egziste, li sote"),
