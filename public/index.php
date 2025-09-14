@@ -52,8 +52,8 @@
 
             <!-- Bouton pou DB settings -->
             <button type="button" id="toggleDbSettings"
-                    class="w-full bg-blue-100 px-4 py-2 rounded-lg font-semibold hover:bg-blue-200 text-left">
-                ⚙️ Paramèt baz done
+                    class="w-full bg-green-200 px-4 py-2 rounded-lg hover:text-white font-semibold hover:bg-green-700 text-left">
+                ⚙️ Kilke la pou mete Paramèt baz done an
             </button>
 
             <!-- DB Settings -->
