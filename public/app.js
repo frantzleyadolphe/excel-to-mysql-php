@@ -89,6 +89,7 @@ form.addEventListener('submit', async (e) => {
                         sheetSelectorDiv.classList.add('hidden');
                     }
                     renderLogs();
+                    
                     if (data.current) updateProgress(data.current, data.total || total);
                 }
             } catch(err) {
@@ -96,13 +97,14 @@ form.addEventListener('submit', async (e) => {
             }
         });
     }
+    form.reset();
 });
 
 
 
-toggleBtn.addEventListener("click", () => {
-    dbSettings.classList.toggle("hidden");
-});
+// toggleBtn.addEventListener("click", () => {
+//     dbSettings.classList.toggle("hidden");
+// });
 
 // Rander logs selon filtre
 function renderLogs() {
@@ -132,12 +134,12 @@ function addLogDiv(text, type) {
     div.innerHTML = `<div class="flex items-center gap-2 bg-white w-full h-8 justify-center rounded-lg mb-2"><span>${icon}</span> <span>${text}</span></div>`;
     
     logsDiv.appendChild(div);
-    const logCount = logsDiv.children.length;
-    logsDiv.style.height = Math.min(logCount * 34, 300) + 'px';
+    //const logCount = logsDiv.children.length;
+    //logsDiv.style.height = Math.min(logCount * 34, 300) + 'px';
 
     setTimeout(() => {
         div.classList.add('opacity-100');
-        logsDiv.scrollTop = logsDiv.scrollHeight;
+        //logsDiv.scrollTop = logsDiv.scrollHeight;
     }, 50);
 }
 

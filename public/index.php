@@ -52,13 +52,14 @@
         <form id="uploadForm" class="space-y-4">
 
             <!-- Bouton pou DB settings -->
-            <button type="button" id="toggleDbSettings"
-                    class="w-full bg-green-200 px-4 py-2 rounded-lg hover:text-white font-semibold hover:bg-green-700 text-left">
-                ⚙️ Kilke la pou mete Paramèt baz done an
-            </button>
+            <!-- <button type="button" id="toggleDbSettings" -->
+            <div class="w-full bg-green-700 px-4 py-2 rounded-lg font-semibold text-center text-white mb-4">
+                ⚙️ Ranpli chan sa yo pou kabap konekte ak done MySQL ou a
+            </div>
 
             <!-- DB Settings -->
-            <div id="dbSettings" class="hidden border p-4 rounded-lg bg-gray-50">
+            <!-- <div id="dbSettings" class="hidden border p-4 rounded-lg bg-gray-50"> -->
+            <div id="dbSettings" class="border p-4 rounded-lg bg-gray-50">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block font-semibold text-sm mb-1">DB Host</label>
@@ -139,7 +140,7 @@
 
             <div>
                 <label class="text-lg text-black font-bold block mb-2">Rapo sou rezilta yo 📝</label>
-                <div id="logs" class="overflow-y-auto h-28 p-2 border rounded-lg bg-green-100"></div>
+                <div id="logs" class="overflow-y-auto h-[375px] p-2 border rounded-lg bg-green-100"></div>
             </div>
         </div>
 
