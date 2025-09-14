@@ -144,8 +144,14 @@ try {
     ]);
 
 } catch (\Exception $e) {
+    // Si gen erè nan koneksyon an
+    $logMessage = writeLog("Erè koneksyon ak baz done '$dbName': " . $e->getMessage());
     echo json_encode([
-        'log'  => writeLog("Erè: " . $e->getMessage()),
-        'type' => 'error',
-    ]);
+        'log'     => $logMessage,
+        'type'    => 'error',
+        'current' => 0,
+        'total'   => 0,
+    ]) . "\n";
+    flush();
+    exit; // sispann script si koneksyon an echwe
 }
